@@ -21,10 +21,11 @@
             height: 100%;
             position: relative;
             cursor: grab;
+            overflow: hidden;
         }
         #viewport:active { cursor: grabbing; }
 
-        /* 가드닝 섬 - 깔끔한 단색 초록 흙밭 */
+        /* 가드닝 섬 - 이제 마우스 클릭을 온전히 받아들입니다 */
         #island {
             position: absolute;
             width: 5000px;
@@ -38,6 +39,7 @@
             position: fixed; top: 20px; left: 20px;
             color: white; font-size: 26px; font-weight: bold;
             text-shadow: 2px 2px 0px #000; z-index: 10;
+            pointer-events: none;
         }
         #ui-instruction {
             position: fixed; top: 20px; right: 20px;
@@ -58,6 +60,7 @@
             position: absolute;
             display: flex; flex-direction: column; align-items: center;
             transform: translate(-50%, -50%);
+            z-index: 2;
         }
         .patch {
             width: 120px; height: 70px;
@@ -153,7 +156,6 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicnNkc3JwbmhscWdnaGR4c3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NzY2MzAsImV4cCI6MjA5NTM1MjYzMH0.9DBwOsWJ5Jup1_lMTUF-9eEbezoukj7BYPnRCuPrPmM"; 
         // =================================================================
         
-        // 표준 생성 방식으로 깔끔하게 한 줄로 선언합니다.
         const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
         if (!supabase) {
@@ -167,8 +169,9 @@
         let activePlotId = null;
         let clickCoord = { x: 0, y: 0 };
 
-        // --- 1. 카메라 드래그 이동 ---
+        // --- 1. 카메라 드래그 이동 및 클릭 구분 설계 ---
         let isDragging = false;
+        let hasDragged = false; // 실제로 마우스를 움직였는지 판별하는 플래그
         let camX = -1500, camY = -1500; 
         let startX, startY;
 
@@ -182,25 +185,39 @@
         }
         updateCamera();
 
+        // 마우스를 눌렀을 때 초기화
         viewport.addEventListener('mousedown', (e) => {
             if (e.target !== viewport && e.target !== island) return; 
             isDragging = true;
+            hasDragged = false; // 아직 움직이지 않음
             startX = e.clientX - camX;
             startY = e.clientY - camY;
         });
 
+        // 마우스가 일정 거리 이상 움직이면 드래그로 판정
         window.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
+            const moveX = e.clientX - (startX + camX);
+            const moveY = e.clientY - (startY + camY);
+            
+            // 미세한 움직임이 아닐 때만 드래그 플래그 ON
+            if (Math.abs(moveX) > 3 || Math.abs(moveY) > 3) {
+                hasDragged = true;
+            }
+            
             camX = e.clientX - startX;
             camY = e.clientY - startY;
             updateCamera();
         });
 
-        window.addEventListener('mouseup', () => { isDragging = false; });
+        window.addEventListener('mouseup', () => { 
+            isDragging = false; 
+        });
 
-        // --- 2. 밭 개간 트리거 (이제 서버 연결 없어도 무조건 작동합니다!) ---
+        // --- 2. 밭 개간 트리거 (드래그하지 않고 순수 '클릭'했을 때만 작동) ---
         island.addEventListener('click', (e) => {
-            if (e.target === island) {
+            // 다른 요소를 누른 게 아니고 순수 바닥 필드를 누른 경우 + 화면을 문지르지(드래그) 않은 경우에만 모달 오픈
+            if (e.target === island && !hasDragged) {
                 const rect = island.getBoundingClientRect();
                 clickCoord.x = e.clientX - rect.left;
                 clickCoord.y = e.clientY - rect.top;
@@ -239,8 +256,8 @@
             const keyword = document.getElementById('input-keyword').value.trim();
             if (!keyword) return alert('키워드를 적어주세요!');
 
-            if(!supabase || SUPABASE_ANON_KEY.includes("YOUR_REAL")) {
-                alert("⚠️ Supabase 키값이 비어있어 브라우저 임시 화면에만 밭을 만듭니다.");
+            if(!supabase) {
+                alert("⚠️ Supabase가 정상 로드되지 않아 임시 화면에만 밭을 만듭니다.");
                 renderPlotOnIsland({ id: 'local_' + Date.now(), x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' });
                 closeAllModals();
                 return;
@@ -261,7 +278,7 @@
             const originalFile = fileInput.files[0];
             const compressedBlob = await resizeImage(originalFile, 400);
 
-            if(!supabase || SUPABASE_ANON_KEY.includes("YOUR_REAL")) {
+            if(!supabase) {
                 const reader = new FileReader();
                 reader.readAsDataURL(compressedBlob);
                 reader.onloadend = function() {
@@ -298,7 +315,7 @@
             li.innerText = `✨ ${keyword} 심은 데 ${resultInput} 났다!`;
             list.insertBefore(li, list.firstChild);
 
-            if(!supabase || SUPABASE_ANON_KEY.includes("YOUR_REAL")) {
+            if(!supabase) {
                 container.remove();
                 closeAllModals();
                 return;
@@ -320,16 +337,17 @@
 
             if (plot.status === 'till') {
                 const patch = document.createElement('div'); patch.className = 'patch';
-                patch.onclick = () => { activePlotId = plot.id; document.getElementById('target-keyword').innerText = `'${plot.keyword}'`; openModal('modal-plant'); };
+                patch.onclick = (e) => { e.stopPropagation(); activePlotId = plot.id; document.getElementById('target-keyword').innerText = `'${plot.keyword}'`; openModal('modal-plant'); };
                 el.appendChild(patch);
             } else {
                 const img = document.createElement('img'); img.src = plot.image_url; img.className = 'planted-image';
-                img.onclick = () => { activePlotId = plot.id; document.getElementById('harvest-keyword').innerText = `'${plot.keyword}'`; openModal('modal-harvest'); };
+                img.onclick = (e) => { e.stopPropagation(); activePlotId = plot.id; document.getElementById('harvest-keyword').innerText = `'${plot.keyword}'`; openModal('modal-harvest'); };
                 el.appendChild(img);
             }
 
             const sign = document.createElement('div'); sign.className = 'signpost'; sign.innerText = plot.keyword;
-            sign.onclick = () => {
+            sign.onclick = (e) => {
+                e.stopPropagation();
                 activePlotId = plot.id;
                 if (plot.status === 'till') { document.getElementById('target-keyword').innerText = `'${plot.keyword}'`; openModal('modal-plant'); }
                 else { document.getElementById('harvest-keyword').innerText = `'${plot.keyword}'`; openModal('modal-harvest'); }
@@ -338,7 +356,7 @@
         }
 
         async function init() {
-            if(!supabase || SUPABASE_ANON_KEY.includes("YOUR_REAL")) return;
+            if(!supabase) return;
             
             const { data: plots } = await supabase.from('plots').select('*');
             if (plots) plots.forEach(renderPlotOnIsland);
