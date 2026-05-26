@@ -247,6 +247,7 @@
             closeAllModals();
         }
 
+        // [핵심 교정 부분] 이미지 업로드 시 키워드와 상태를 타겟팅하여 데이터 누락을 해결합니다.
         async function dbPlantImage() {
             const fileInput = document.getElementById('input-file');
             if (!fileInput.files || !fileInput.files[0]) return alert('사진을 골라주세요!');
@@ -277,12 +278,18 @@
 
                 try {
                     if(!dbClient) throw new Error("No DB");
-                    const fileName = `${activePlotId}_${Date.now()}.jpg`;
+                    const fileName = `img_${Date.now()}.jpg`;
                     const { error: storageError } = await dbClient.storage.from('gardening-images').upload(fileName, compressedBlob, { contentType: 'image/jpeg' });
                     if (storageError) throw storageError;
                     const { data: urlData } = dbClient.storage.from('gardening-images').getPublicUrl(fileName);
-                    await dbClient.from('plots').update({ status: 'planted', image_url: urlData.publicUrl }).eq('id', activePlotId);
-                } catch(e) { console.error(e); }
+                    
+                    // 정수 ID 매칭 오류를 전면 피하기 위해 'keyword'와 기존 'till' 상태를 타겟으로 정확히 업데이트 수행
+                    await dbClient.from('plots')
+                        .update({ status: 'planted', image_url: urlData.publicUrl })
+                        .eq('keyword', currentSign)
+                        .eq('status', 'till');
+                        
+                } catch(e) { console.error("업로드 오류:", e); }
                 closeAllModals();
             }
         }
@@ -313,12 +320,13 @@
             try {
                 if(!dbClient) throw new Error("No DB");
                 await dbClient.from('history').insert([{ sentence: logText }]);
-                await dbClient.from('plots').delete().eq('id', activePlotId);
+                
+                // 수확할 때도 정확하게 매칭하여 지우도록 안전 조치
+                await dbClient.from('plots').delete().eq('keyword', keyword).eq('status', 'planted');
             } catch(e) { console.log("로컬 제거"); }
             closeAllModals();
         }
 
-        // [버그 수정 핵심] 새로고침 및 데이터 로드 시 planted(이미지) 상태를 정확히 판별하도록 수정
         function renderPlotOnIsland(plot) {
             let el = document.getElementById(plot.id);
             if (!el) {
@@ -327,7 +335,6 @@
             }
             el.innerHTML = ''; el.style.left = plot.x + 'px'; el.style.top = plot.y + 'px';
             
-            // 기존에 무조건 till만 필터링하던 오류를 고쳐 status를 확실하게 비교합니다.
             if (plot.status === 'till') {
                 const patch = document.createElement('div'); patch.className = 'patch';
                 patch.onclick = (e) => { e.stopPropagation(); activePlotId = plot.id; document.getElementById('target-keyword').innerText = `'${plot.keyword}'`; openModal('modal-plant'); };
