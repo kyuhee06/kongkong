@@ -15,93 +15,39 @@
             user-select: none;
         }
 
-        /* 드래그 가능한 카메라 뷰포트 */
         #viewport {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            cursor: grab;
-            overflow: hidden;
+            width: 100%; height: 100%;
+            position: relative; cursor: grab; overflow: hidden;
         }
         #viewport:active { cursor: grabbing; }
 
-        /* 가드닝 섬 */
         #island {
-            position: absolute;
-            width: 5000px;
-            height: 5000px;
-            background-color: #9cb945; 
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            position: absolute; width: 5000px; height: 5000px;
+            background-color: #9cb945; box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* 고정 UI 레이어 */
         #ui-header {
             position: fixed; top: 20px; left: 20px;
             color: white; font-size: 26px; font-weight: bold;
-            text-shadow: 2px 2px 0px #000; z-index: 10;
-            pointer-events: none;
+            text-shadow: 2px 2px 0px #000; z-index: 10; pointer-events: none;
         }
         #ui-instruction {
             position: fixed; top: 20px; right: 20px;
-            color: white; text-align: right;
-            text-shadow: 1px 1px 0px #000; z-index: 10;
-            font-size: 14px; line-height: 1.6;
-            max-height: 80vh; overflow-y: auto;
-            pointer-events: none; 
+            color: white; text-align: right; text-shadow: 1px 1px 0px #000;
+            z-index: 10; font-size: 14px; line-height: 1.6; pointer-events: none; 
         }
-        #history-list {
-            margin-top: 15px; color: #d1ff36;
-            font-weight: bold; list-style: none; padding: 0;
-            pointer-events: auto; 
-        }
+        #history-list { margin-top: 15px; color: #d1ff36; font-weight: bold; list-style: none; padding: 0; pointer-events: auto; }
 
-        /* 밭 및 오브젝트 배치 */
-        .plot-container {
-            position: absolute;
-            display: flex; flex-direction: column; align-items: center;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-        }
-        .patch {
-            width: 120px; height: 70px;
-            background-color: #e3b265; border-radius: 50%;
-            position: relative; display: flex; justify-content: center; align-items: center;
-            border: 2px dashed #c59448; cursor: pointer;
-            box-shadow: inset 0 5px 5px rgba(0,0,0,0.2);
-        }
-        .planted-image {
-            max-width: 160px; max-height: 130px;
-            object-fit: contain; border-radius: 6px;
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.4);
-            cursor: pointer; transition: transform 0.2s;
-        }
+        .plot-container { position: absolute; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%); z-index: 2; }
+        .patch { width: 120px; height: 70px; background-color: #e3b265; border-radius: 50%; border: 2px dashed #c59448; cursor: pointer; box-shadow: inset 0 5px 5px rgba(0,0,0,0.2); }
+        .planted-image { max-width: 160px; max-height: 130px; object-fit: contain; border-radius: 6px; box-shadow: 5px 5px 15px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.2s; }
         .planted-image:hover { transform: scale(1.05); }
-        
-        .signpost {
-            margin-top: 8px; background-color: #c9843b; color: white;
-            padding: 5px 14px; border-radius: 4px; font-size: 13px;
-            border: 2px solid #a06222; box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
-            cursor: pointer; font-weight: bold;
-        }
+        .signpost { margin-top: 8px; background-color: #c9843b; color: white; padding: 5px 14px; border-radius: 4px; font-size: 13px; border: 2px solid #a06222; box-shadow: 1px 2px 4px rgba(0,0,0,0.3); cursor: pointer; font-weight: bold; }
 
-        /* 모달 스타일 */
-        .modal {
-            display: none; position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); width: 340px;
-            background-color: #ca934a; border: 4px solid #8d5e27; border-radius: 20px;
-            padding: 25px; box-shadow: 6px 6px 0px rgba(0,0,0,0.2); z-index: 100;
-            color: white; text-align: center;
-        }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 340px; background-color: #ca934a; border: 4px solid #8d5e27; border-radius: 20px; padding: 25px; box-shadow: 6px 6px 0px rgba(0,0,0,0.2); z-index: 100; color: white; text-align: center; }
         .modal-close { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 22px; color: #724617; }
-        .modal input[type="text"] {
-            width: 80%; padding: 10px; margin: 15px 0;
-            border: 2px solid #8d5e27; border-radius: 8px;
-            background-color: #f7e0bc; color: #5c3a14; font-weight: bold; text-align: center;
-        }
-        .modal button {
-            background-color: #8d5e27; color: white; border: none;
-            padding: 10px 24px; border-radius: 10px; cursor: pointer; font-weight: bold;
-        }
+        .modal input[type="text"] { width: 80%; padding: 10px; margin: 15px 0; border: 2px solid #8d5e27; border-radius: 8px; background-color: #f7e0bc; color: #5c3a14; font-weight: bold; text-align: center; }
+        .modal button { background-color: #8d5e27; color: white; border: none; padding: 10px 24px; border-radius: 10px; cursor: pointer; font-weight: bold; }
         .modal button:hover { background-color: #724617; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; }
         .loading-text { font-size: 12px; color: #fff3cc; display: none; margin-top: 5px; }
@@ -149,19 +95,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // =================================================================
-        // 🔍여기에 본인의 Supabase 주소(URL)와 진짜 anon 키를 넣어주세요!
-        // =================================================================
         const SUPABASE_URL = "https://lbrsdsrpnhlqgghdxsxc.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicnNkc3JwbmhscWdnaGR4c3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NzY2MzAsImV4cCI6MjA5NTM1MjYzMH0.9DBwOsWJ5Jup1_lMTUF-9eEbezoukj7BYPnRCuPrPmM"; 
-        // =================================================================
         
-        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-
-        if (!supabase) {
-            console.error("Supabase 라이브러리를 로드하지 못했습니다.");
+        let supabase = null;
+        try {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch(e) {
+            console.error("Supabase 생성 실패, 로컬 모드로 작동합니다:", e);
         }
-
+        
         const viewport = document.getElementById('viewport');
         const island = document.getElementById('island');
         const overlay = document.getElementById('overlay');
@@ -169,67 +114,73 @@
         let activePlotId = null;
         let clickCoord = { x: 0, y: 0 };
 
-        // --- 1. 확실한 마우스 제어 시스템 (좌표 비교 방식) ---
         let isDragging = false;
         let camX = -1500, camY = -1500; 
         let startX, startY;
-        
-        // 클릭 오작동을 완전히 차단하기 위한 마우스 다운 시점의 절대 좌표 기록용
-        let mouseDownX = 0;
-        let mouseDownY = 0;
+        let mouseDownX = 0, mouseDownY = 0;
 
         function updateCamera() {
             const minX = window.innerWidth - 5000, minY = window.innerHeight - 5000;
             if (camX > 0) camX = 0; if (camX < minX) camX = minX;
             if (camY > 0) camY = 0; if (camY < minY) camY = minY;
-            
             island.style.left = camX + 'px';
             island.style.top = camY + 'px';
         }
         updateCamera();
 
-        // 뷰포트나 섬을 누르는 순간 좌표 기록
-        viewport.addEventListener('mousedown', (e) => {
+        // 마우스와 터치를 모두 지원하는 공통 누르기 이벤트
+        function onDown(e) {
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            const screenX = e.screenX || (e.touches && e.touches[0].screenX);
+            const screenY = e.screenY || (e.touches && e.touches[0].screenY);
+
             if (e.target !== viewport && e.target !== island) return; 
             isDragging = true;
-            
-            // 전역 스크린 기준 마우스 위치 저장
-            mouseDownX = e.screenX;
-            mouseDownY = e.screenY;
-            
-            startX = e.clientX - camX;
-            startY = e.clientY - camY;
-        });
+            mouseDownX = screenX;
+            mouseDownY = screenY;
+            startX = clientX - camX;
+            startY = clientY - camY;
+        }
 
-        window.addEventListener('mousemove', (e) => {
+        // 공통 움직임 이벤트
+        function onMove(e) {
             if (!isDragging) return;
-            camX = e.clientX - startX;
-            camY = e.clientY - startY;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            camX = clientX - startX;
+            camY = clientY - startY;
             updateCamera();
-        });
+        }
 
-        // 마우스를 뗄 때, 처음 누른 곳에서 거의 움직이지 않았다면 무조건 '클릭'으로 인정합니다.
-        window.addEventListener('mouseup', (e) => {
+        // 공통 떼기 이벤트 (정밀 좌표 비교로 클릭 검출)
+        function onUp(e) {
             if (!isDragging) return;
             isDragging = false;
 
-            // 마우스를 누른 상태에서 움직인 거리 계산
-            const deltaX = Math.abs(e.screenX - mouseDownX);
-            const deltaY = Math.abs(e.screenY - mouseDownY);
+            const changeEvent = e.changedTouches ? e.changedTouches[0] : e;
+            const deltaX = Math.abs(changeEvent.screenX - mouseDownX);
+            const deltaY = Math.abs(changeEvent.screenY - mouseDownY);
 
-            // 미세한 흔들림(5픽셀 이내)인 경우 완전한 클릭으로 판단하여 실행
-            if (deltaX < 5 && deltaY < 5) {
-                if (e.target === island || e.target === viewport) {
-                    const rect = island.getBoundingClientRect();
-                    clickCoord.x = e.clientX - rect.left;
-                    clickCoord.y = e.clientY - rect.top;
-                    
-                    openModal('modal-till');
-                }
+            // 8픽셀 미만 이동시 무조건 '클릭'으로 강제 인정
+            if (deltaX < 8 && deltaY < 8) {
+                const rect = island.getBoundingClientRect();
+                clickCoord.x = changeEvent.clientX - rect.left;
+                clickCoord.y = changeEvent.clientY - rect.top;
+                openModal('modal-till');
             }
-        });
+        }
 
-        // --- 2. 이미지 압축 로직 ---
+        // 마우스 이벤트 등록
+        viewport.addEventListener('mousedown', onDown);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+
+        // 모바일/터치 기기 이벤트 추가 등록
+        viewport.addEventListener('touchstart', onDown, {passive: true});
+        window.addEventListener('touchmove', onMove, {passive: true});
+        window.addEventListener('touchend', onUp);
+
         function resizeImage(file, maxSide = 400) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -254,20 +205,18 @@
             });
         }
 
-        // --- 3. 데이터베이스 연동 및 예외 처리 ---
         async function dbCreatePlot() {
             const keyword = document.getElementById('input-keyword').value.trim();
             if (!keyword) return alert('키워드를 적어주세요!');
 
-            if(!supabase) {
-                alert("⚠️ Supabase가 정상 로드되지 않아 임시 화면에만 밭을 만듭니다.");
+            try {
+                if(!supabase) throw new Error("No Supabase");
+                const { error } = await supabase.from('plots').insert([{ x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' }]);
+                if (error) throw error;
+            } catch(e) {
+                console.log("로컬 브라우저 모드로 생성합니다.");
                 renderPlotOnIsland({ id: 'local_' + Date.now(), x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' });
-                closeAllModals();
-                return;
             }
-
-            const { error } = await supabase.from('plots').insert([{ x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' }]);
-            if (error) alert('서버 전송 오류: ' + error.message);
             closeAllModals();
         }
 
@@ -275,34 +224,27 @@
             const fileInput = document.getElementById('input-file');
             if (!fileInput.files || !fileInput.files[0]) return alert('사진을 골라주세요!');
             
-            document.getElementById('plant-loading').style.display = 'block';
+            document.getElementById('plant-loading').style.style.display = 'block';
             document.getElementById('btn-plant').disabled = true;
 
             const originalFile = fileInput.files[0];
             const compressedBlob = await resizeImage(originalFile, 400);
 
-            if(!supabase) {
+            try {
+                if(!supabase) throw new Error("No Supabase");
+                const fileName = `${activePlotId}_${Date.now()}.jpg`;
+                const { error: storageError } = await supabase.storage.from('gardening-images').upload(fileName, compressedBlob, { contentType: 'image/jpeg' });
+                if (storageError) throw storageError;
+
+                const { data: urlData } = supabase.storage.from('gardening-images').getPublicUrl(fileName);
+                await supabase.from('plots').update({ status: 'planted', image_url: urlData.publicUrl }).eq('id', activePlotId);
+            } catch(e) {
                 const reader = new FileReader();
                 reader.readAsDataURL(compressedBlob);
                 reader.onloadend = function() {
                     renderPlotOnIsland({ id: activePlotId, x: parseFloat(document.getElementById(activePlotId).style.left), y: parseFloat(document.getElementById(activePlotId).style.top), keyword: document.getElementById(activePlotId).querySelector('.signpost').innerText, status: 'planted', image_url: reader.result });
-                    closeAllModals();
                 }
-                return;
             }
-
-            const fileName = `${activePlotId}_${Date.now()}.jpg`;
-            const { data: storageData, error: storageError } = await supabase.storage.from('gardening-images').upload(fileName, compressedBlob, { contentType: 'image/jpeg' });
-
-            if (storageError) {
-                alert('Storage 에러: ' + storageError.message);
-                document.getElementById('plant-loading').style.display = 'none';
-                document.getElementById('btn-plant').disabled = false;
-                return;
-            }
-
-            const { data: urlData } = supabase.storage.from('gardening-images').getPublicUrl(fileName);
-            await supabase.from('plots').update({ status: 'planted', image_url: urlData.publicUrl }).eq('id', activePlotId);
             closeAllModals();
         }
 
@@ -318,18 +260,16 @@
             li.innerText = `✨ ${keyword} 심은 데 ${resultInput} 났다!`;
             list.insertBefore(li, list.firstChild);
 
-            if(!supabase) {
+            try {
+                if(!supabase) throw new Error("No Supabase");
+                await supabase.from('history').insert([{ sentence: `✨ ${keyword} 심은 데 ${resultInput} 났다!` }]);
+                await supabase.from('plots').delete().eq('id', activePlotId);
+            } catch(e) {
                 container.remove();
-                closeAllModals();
-                return;
             }
-
-            await supabase.from('history').insert([{ sentence: `✨ ${keyword} 심은 데 ${resultInput} 났다!` }]);
-            await supabase.from('plots').delete().eq('id', activePlotId);
             closeAllModals();
         }
 
-        // --- 4. 렌더러 ---
         function renderPlotOnIsland(plot) {
             let el = document.getElementById(plot.id);
             if (!el) {
@@ -350,8 +290,7 @@
 
             const sign = document.createElement('div'); sign.className = 'signpost'; sign.innerText = plot.keyword;
             sign.onclick = (e) => {
-                e.stopPropagation();
-                activePlotId = plot.id;
+                e.stopPropagation(); activePlotId = plot.id;
                 if (plot.status === 'till') { document.getElementById('target-keyword').innerText = `'${plot.keyword}'`; openModal('modal-plant'); }
                 else { document.getElementById('harvest-keyword').innerText = `'${plot.keyword}'`; openModal('modal-harvest'); }
             };
@@ -359,26 +298,31 @@
         }
 
         async function init() {
-            if(!supabase) return;
-            
-            const { data: plots } = await supabase.from('plots').select('*');
-            if (plots) plots.forEach(renderPlotOnIsland);
+            // 모든 통신 에러 가능성에 예외 처리(try-catch) 적용
+            try {
+                if(!supabase) return;
+                
+                const { data: plots } = await supabase.from('plots').select('*');
+                if (plots) plots.forEach(renderPlotOnIsland);
 
-            const { data: logs } = await supabase.from('history').select('*').order('created_at', { ascending: false }).limit(10);
-            if (logs) {
-                const list = document.getElementById('history-list');
-                logs.forEach(log => { const li = document.createElement('li'); li.innerText = log.sentence; list.appendChild(li); });
+                const { data: logs } = await supabase.from('history').select('*').order('created_at', { ascending: false }).limit(10);
+                if (logs) {
+                    const list = document.getElementById('history-list');
+                    logs.forEach(log => { const li = document.createElement('li'); li.innerText = log.sentence; list.appendChild(li); });
+                }
+
+                supabase.channel('public:plots').on('postgres_changes', { event: '*', schema: 'public', table: 'plots' }, payload => {
+                    if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') { renderPlotOnIsland(payload.new); } 
+                    else if (payload.eventType === 'DELETE') { const el = document.getElementById(payload.old.id); if (el) el.remove(); }
+                }).subscribe();
+
+                supabase.channel('public:history').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'history' }, payload => {
+                    const list = document.getElementById('history-list'); const li = document.createElement('li');
+                    li.innerText = payload.new.sentence; list.insertBefore(li, list.firstChild);
+                }).subscribe();
+            } catch (err) {
+                console.warn("Supabase 연결 실패로 로컬 차단 해제:", err);
             }
-
-            supabase.channel('public:plots').on('postgres_changes', { event: '*', schema: 'public', table: 'plots' }, payload => {
-                if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') { renderPlotOnIsland(payload.new); } 
-                else if (payload.eventType === 'DELETE') { const el = document.getElementById(payload.old.id); if (el) el.remove(); }
-            }).subscribe();
-
-            supabase.channel('public:history').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'history' }, payload => {
-                const list = document.getElementById('history-list'); const li = document.createElement('li');
-                li.innerText = payload.new.sentence; list.insertBefore(li, list.firstChild);
-            }).subscribe();
         }
 
         function openModal(id) { overlay.style.display = 'block'; document.getElementById(id).style.display = 'block'; }
