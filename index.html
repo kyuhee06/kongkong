@@ -229,14 +229,13 @@
             });
         }
 
-        // [수정 핵심] 비동기식 락(Lock) 방식으로 변경하여 즉각 반응 및 멘트 중복 전면 해결
         async function dbCreatePlot() {
             const keyword = document.getElementById('input-keyword').value.trim();
             if (!keyword) return alert('키워드를 적어주세요!');
             
             const btn = document.getElementById('btn-till');
             if (btn.disabled) return; 
-            btn.disabled = true; // 첫 클릭 직후 무조건 잠금
+            btn.disabled = true;
 
             const tempId = 'temp_' + Date.now();
             renderPlotOnIsland({ id: tempId, x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' });
@@ -254,7 +253,7 @@
             
             const btn = document.getElementById('btn-plant');
             if (btn.disabled) return;
-            btn.disabled = true; // 첫 클릭 직후 무조건 잠금
+            btn.disabled = true; 
             document.getElementById('plant-loading').style.display = 'block';
             
             const originalFile = fileInput.files[0];
@@ -294,7 +293,7 @@
             
             const btn = document.getElementById('btn-harvest');
             if (btn.disabled) return;
-            btn.disabled = true; // 첫 클릭 즉후 무조건 잠금
+            btn.disabled = true; 
             
             const container = document.getElementById(activePlotId);
             if (!container) { closeAllModals(); return; }
@@ -319,6 +318,7 @@
             closeAllModals();
         }
 
+        // [버그 수정 핵심] 새로고침 및 데이터 로드 시 planted(이미지) 상태를 정확히 판별하도록 수정
         function renderPlotOnIsland(plot) {
             let el = document.getElementById(plot.id);
             if (!el) {
@@ -326,15 +326,18 @@
                 island.appendChild(el);
             }
             el.innerHTML = ''; el.style.left = plot.x + 'px'; el.style.top = plot.y + 'px';
+            
+            // 기존에 무조건 till만 필터링하던 오류를 고쳐 status를 확실하게 비교합니다.
             if (plot.status === 'till') {
                 const patch = document.createElement('div'); patch.className = 'patch';
                 patch.onclick = (e) => { e.stopPropagation(); activePlotId = plot.id; document.getElementById('target-keyword').innerText = `'${plot.keyword}'`; openModal('modal-plant'); };
                 el.appendChild(patch);
-            } else {
+            } else if (plot.status === 'planted') {
                 const img = document.createElement('img'); img.src = plot.image_url; img.className = 'planted-image';
                 img.onclick = (e) => { e.stopPropagation(); activePlotId = plot.id; document.getElementById('harvest-keyword').innerText = `'${plot.keyword}'`; openModal('modal-harvest'); };
                 el.appendChild(img);
             }
+            
             const sign = document.createElement('div'); sign.className = 'signpost'; sign.innerText = plot.keyword;
             sign.onclick = (e) => {
                 e.stopPropagation(); activePlotId = plot.id;
