@@ -111,13 +111,6 @@
         let activePlotId = null;
         let clickCoord = { x: 0, y: 0 };
 
-        let isDragging = false;
-        let camX = -1500, camY = -1500; 
-        let startX, startY;
-        let startScreenX = 0, startScreenY = 0;
-
-        let isProcessing = false; // 전역 단위 중복 연타 방지 플래그 추가
-
         const closeAllModals = () => {
             overlay.style.display = 'none';
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
@@ -130,7 +123,6 @@
             document.getElementById('input-keyword').value = '';
             document.getElementById('input-file').value = '';
             document.getElementById('input-result').value = '';
-            isProcessing = false; // 플래그 해제
         }
 
         const inputResult = document.getElementById('input-result');
@@ -139,6 +131,11 @@
                 if (e.key === 'Enter') e.preventDefault();
             });
         }
+
+        let isDragging = false;
+        let camX = -1500, camY = -1500; 
+        let startX, startY;
+        let startScreenX = 0, startScreenY = 0;
 
         function updateCamera() {
             const minX = window.innerWidth - 5000, minY = window.innerHeight - 5000;
@@ -149,7 +146,6 @@
         }
         updateCamera();
 
-        // 마우스 다운
         island.addEventListener('mousedown', (e) => {
             if (e.target !== island) return;
             isDragging = true;
@@ -179,7 +175,6 @@
             }
         });
 
-        // [핵심 수정] 터치 이벤트와 마우스 이벤트의 중복 실행 방지 (preventDefault 적용)
         island.addEventListener('touchstart', (e) => {
             if (e.target !== island) return;
             isDragging = true;
@@ -205,7 +200,7 @@
             const touch = e.changedTouches[0];
             const dragDistance = Math.sqrt(Math.pow(touch.screenX - startScreenX, 2) + Math.pow(touch.screenY - startScreenY, 2));
             if (dragDistance < 8 && e.target === island) {
-                e.preventDefault(); // 마우스 마우스업(mouseup)이 연달아 또 실행되는 가짜 중복 클릭 전면 차단!
+                e.preventDefault(); 
                 const rect = island.getBoundingClientRect();
                 clickCoord.x = touch.clientX - rect.left;
                 clickCoord.y = touch.clientY - rect.top;
@@ -234,13 +229,14 @@
             });
         }
 
+        // [수정 핵심] 비동기식 락(Lock) 방식으로 변경하여 즉각 반응 및 멘트 중복 전면 해결
         async function dbCreatePlot() {
             const keyword = document.getElementById('input-keyword').value.trim();
             if (!keyword) return alert('키워드를 적어주세요!');
             
-            if (isProcessing) return; 
-            isProcessing = true; 
-            document.getElementById('btn-till').disabled = true;
+            const btn = document.getElementById('btn-till');
+            if (btn.disabled) return; 
+            btn.disabled = true; // 첫 클릭 직후 무조건 잠금
 
             const tempId = 'temp_' + Date.now();
             renderPlotOnIsland({ id: tempId, x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' });
@@ -248,9 +244,7 @@
             try {
                 if(!dbClient) throw new Error("No DB");
                 await dbClient.from('plots').insert([{ x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' }]);
-            } catch(e) {
-                console.log("로컬 모드 진행");
-            }
+            } catch(e) { console.log("로컬 반영"); }
             closeAllModals();
         }
 
@@ -258,9 +252,9 @@
             const fileInput = document.getElementById('input-file');
             if (!fileInput.files || !fileInput.files[0]) return alert('사진을 골라주세요!');
             
-            if (isProcessing) return;
-            isProcessing = true;
-            document.getElementById('btn-plant').disabled = true;
+            const btn = document.getElementById('btn-plant');
+            if (btn.disabled) return;
+            btn.disabled = true; // 첫 클릭 직후 무조건 잠금
             document.getElementById('plant-loading').style.display = 'block';
             
             const originalFile = fileInput.files[0];
@@ -289,9 +283,7 @@
                     if (storageError) throw storageError;
                     const { data: urlData } = dbClient.storage.from('gardening-images').getPublicUrl(fileName);
                     await dbClient.from('plots').update({ status: 'planted', image_url: urlData.publicUrl }).eq('id', activePlotId);
-                } catch(e) {
-                    console.error("업로드 로컬 유지:", e);
-                }
+                } catch(e) { console.error(e); }
                 closeAllModals();
             }
         }
@@ -300,9 +292,9 @@
             const resultInput = document.getElementById('input-result').value.trim();
             if (!resultInput) return alert('실제 무엇이 열렸는지 작성해 주세요!');
             
-            if (isProcessing) return;
-            isProcessing = true;
-            document.getElementById('btn-harvest').disabled = true;
+            const btn = document.getElementById('btn-harvest');
+            if (btn.disabled) return;
+            btn.disabled = true; // 첫 클릭 즉후 무조건 잠금
             
             const container = document.getElementById(activePlotId);
             if (!container) { closeAllModals(); return; }
@@ -310,7 +302,6 @@
             const keyword = container.querySelector('.signpost').innerText;
             const logText = `✨ ${keyword} 심은 데 ${resultInput} 났다!`;
 
-            // [수정] 화면에 중복 문구 추가 방지 검증 추가
             const list = document.getElementById('history-list');
             if (![...list.children].some(li => li.innerText === logText)) {
                 const li = document.createElement('li');
@@ -324,9 +315,7 @@
                 if(!dbClient) throw new Error("No DB");
                 await dbClient.from('history').insert([{ sentence: logText }]);
                 await dbClient.from('plots').delete().eq('id', activePlotId);
-            } catch(e) { 
-                console.log("로컬 삭제 완료");
-            }
+            } catch(e) { console.log("로컬 제거"); }
             closeAllModals();
         }
 
@@ -366,10 +355,8 @@
                     logs.forEach(log => { const li = document.createElement('li'); li.innerText = log.sentence; list.appendChild(li); });
                 }
                 
-                // [수정] 실시간 동기화 시 중복 수신 안전장치 추가
                 dbClient.channel('public:plots').on('postgres_changes', { event: '*', schema: 'public', table: 'plots' }, payload => {
                     if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-                        // 임시 엘리먼트가 아닌 진짜 DB 아이디로 렌더링하도록 유도
                         renderPlotOnIsland(payload.new);
                     } else if (payload.eventType === 'DELETE') {
                         const el = document.getElementById(payload.old.id); 
