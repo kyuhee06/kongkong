@@ -153,15 +153,11 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicnNkc3JwbmhscWdnaGR4c3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NzY2MzAsImV4cCI6MjA5NTM1MjYzMH0.9DBwOsWJ5Jup1_lMTUF-9eEbezoukj7BYPnRCuPrPmM"; 
         // =================================================================
         
-        let supabase = null;
-        try {
-            if(supabase) {
-                supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } else if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-        } catch(e) {
-            console.error("Supabase 로드 실패, 로컬 모드로 임시 전환:", e);
+        // 표준 생성 방식으로 깔끔하게 한 줄로 선언합니다.
+        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+        if (!supabase) {
+            console.error("Supabase 라이브러리를 로드하지 못했습니다.");
         }
 
         const viewport = document.getElementById('viewport');
