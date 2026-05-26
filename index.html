@@ -116,6 +116,41 @@
         let startX, startY;
         let startScreenX = 0, startScreenY = 0;
 
+        // [버그 수정 1 & 3 관련] 모달이 닫힐 때 버튼 비활성화 상태를 확실하게 초기화
+        const closeAllModals = () => {
+            overlay.style.display = 'none';
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            document.querySelectorAll('.loading-text').forEach(t => t.style.display = 'none');
+            
+            // 모든 완료/생성/수확 버튼을 다시 활성화
+            const tillBtn = document.getElementById('btn-till');
+            const plantBtn = document.getElementById('btn-plant');
+            const harvestBtn = document.getElementById('btn-harvest');
+            
+            if (tillBtn) tillBtn.disabled = false;
+            if (plantBtn) plantBtn.disabled = false;
+            if (harvestBtn) harvestBtn.disabled = false;
+            
+            // 입력 필드 초기화
+            const inputResult = document.getElementById('input-result');
+            if (inputResult) inputResult.value = '';
+            
+            document.getElementById('input-keyword').value = '';
+            document.getElementById('input-file').value = '';
+        }
+
+        // [버그 수정 1 관련] 수확 모달에서 엔터키 입력 차단
+        const inputResult = document.getElementById('input-result');
+        if (inputResult) {
+            inputResult.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // 엔터키의 기본 동작(제출 등)을 차단
+                    // 필요하다면 여기서 dbHarvestPlot()을 호출할 수도 있지만,
+                    // '차단'을 원하셨으므로 아무것도 하지 않습니다.
+                }
+            });
+        }
+
         function updateCamera() {
             const minX = window.innerWidth - 5000, minY = window.innerHeight - 5000;
             if (camX > 0) camX = 0; if (camX < minX) camX = minX;
@@ -125,7 +160,6 @@
         }
         updateCamera();
 
-        // 드래그 및 맵 스크롤 감도 수정
         island.addEventListener('mousedown', (e) => {
             if (e.target !== island) return;
             isDragging = true;
@@ -146,7 +180,6 @@
             if (!isDragging) return;
             isDragging = false;
 
-            // 드래그 거리 판정을 넉넉하게 8px로 조절하여 안정적인 스크롤 구현
             const dragDistance = Math.sqrt(Math.pow(e.screenX - startScreenX, 2) + Math.pow(e.screenY - startScreenY, 2));
             if (dragDistance < 8 && e.target === island) {
                 const rect = island.getBoundingClientRect();
@@ -156,7 +189,6 @@
             }
         });
 
-        // 모바일 터치 스크롤 최적화
         island.addEventListener('touchstart', (e) => {
             if (e.target !== island) return;
             isDragging = true;
@@ -209,12 +241,19 @@
             });
         }
 
+        let isProcessingTill = false; // [버그 수정 2 관련] 더블 클릭 중복 생성 방지용 플래그
+
         async function dbCreatePlot() {
-            const keyword = document.getElementById('input-keyword').value.trim();
+            const keywordInput = document.getElementById('input-keyword');
+            const tillBtn = document.getElementById('btn-till');
+            
+            const keyword = keywordInput.value.trim();
             if (!keyword) return alert('키워드를 적어주세요!');
             
-            document.getElementById('btn-till').disabled = true; // 중복 클릭 차단
-            
+            if (isProcessingTill) return; // 이미 처리 중이면 무시
+            isProcessingTill = true; // 처리 시작
+            tillBtn.disabled = true; // 버튼 비활성화
+
             const tempId = 'temp_' + Date.now();
             const tempPlot = { id: tempId, x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' };
             renderPlotOnIsland(tempPlot);
@@ -225,28 +264,38 @@
                 if (error) throw error;
             } catch(e) {
                 console.log("로컬 반영 완료");
+            } finally {
+                // 처리가 성공하든 실패하든 플래그와 버튼 상태는 closeAllModals에서 초기화됩니다.
+                isProcessingTill = false; 
+                closeAllModals();
             }
-            closeAllModals();
         }
 
         async function dbPlantImage() {
             const fileInput = document.getElementById('input-file');
-            if (!fileInput.files || !fileInput.files[0]) return alert('사진을 골라주세요!');
+            const plantBtn = document.getElementById('btn-plant');
             
-            document.getElementById('plant-loading').style.display = 'block';
-            document.getElementById('btn-plant').disabled = true; // 중복 클릭 차단
+            if (!fileInput.files || !fileInput.files[0]) return alert('사진을 골라주세요!');
             
             const originalFile = fileInput.files[0];
             const compressedBlob = await resizeImage(originalFile, 400);
 
+            plantBtn.disabled = true; // [버그 수정 3 관련] 중복 심기 방지
+            document.getElementById('plant-loading').style.display = 'block';
+
             const reader = new FileReader();
             reader.readAsDataURL(compressedBlob);
             reader.onloadend = async function() {
-                const currentSign = document.getElementById(activePlotId).querySelector('.signpost').innerText;
+                const container = document.getElementById(activePlotId);
+                if (!container) {
+                    closeAllModals();
+                    return;
+                }
+                const currentSign = container.querySelector('.signpost').innerText;
                 renderPlotOnIsland({ 
                     id: activePlotId, 
-                    x: parseFloat(document.getElementById(activePlotId).style.left), 
-                    y: parseFloat(document.getElementById(activePlotId).style.top), 
+                    x: parseFloat(container.style.left), 
+                    y: parseFloat(container.style.top), 
                     keyword: currentSign, 
                     status: 'planted', 
                     image_url: reader.result 
@@ -267,15 +316,20 @@
         }
 
         async function dbHarvestPlot() {
-            const resultInput = document.getElementById('input-result').value.trim();
+            const resultInputInput = document.getElementById('input-result');
+            const harvestBtn = document.getElementById('btn-harvest');
+            
+            const resultInput = resultInputInput.value.trim();
             if (!resultInput) return alert('실제 무엇이 열렸는지 작성해 주세요!');
             
-            // [해결 1] 버튼을 누르는 즉시 비활성화하여 중복 클릭과 팝업 중복 차단!
-            const harvestBtn = document.getElementById('btn-harvest');
+            // [버그 수정 3 관련] 버튼을 누르는 즉시 비활성화하여 중복 클릭과 멘트 중복 차단
             harvestBtn.disabled = true;
             
             const container = document.getElementById(activePlotId);
-            if (!container) return; // 이미 삭제된 경우 예외처리
+            if (!container) {
+                closeAllModals();
+                return; // 이미 삭제된 경우 예외처리
+            }
             
             const keyword = container.querySelector('.signpost').innerText;
             
@@ -342,15 +396,6 @@
         }
 
         function openModal(id) { overlay.style.display = 'block'; document.getElementById(id).style.display = 'block'; }
-        function closeAllModals() {
-            overlay.style.display = 'none';
-            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-            document.querySelectorAll('.loading-text').forEach(t => t.style.display = 'none');
-            document.getElementById('btn-till').disabled = false;
-            document.getElementById('btn-plant').disabled = false; 
-            document.getElementById('btn-harvest').disabled = false; // 닫힐 때 버튼 잠금 리셋
-            document.getElementById('input-keyword').value = ''; document.getElementById('input-file').value = ''; document.getElementById('input-result').value = '';
-        }
 
         init();
     </script>
