@@ -208,7 +208,7 @@
             }
         });
 
-        function resizeImage(file, maxSide = 400) {
+        function resizeImage(file, maxSide = 300) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -223,7 +223,7 @@
                         canvas.width = width; canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        canvas.toBlob((blob) => { resolve(blob); }, 'image/jpeg', 0.85);
+                        canvas.toBlob((blob) => { resolve(blob); }, 'image/jpeg', 0.7);
                     }
                 }
             });
@@ -247,7 +247,7 @@
             closeAllModals();
         }
 
-        // [핵심 교정 부분] 이미지 업로드 시 키워드와 상태를 타겟팅하여 데이터 누락을 해결합니다.
+        // [구조 대변경] Storage 버킷 에러 우회 적용: 이미지 데이터를 DB에 직접 텍스트 형태로 다이렉트 업데이트합니다.
         async function dbPlantImage() {
             const fileInput = document.getElementById('input-file');
             if (!fileInput.files || !fileInput.files[0]) return alert('사진을 골라주세요!');
@@ -258,7 +258,8 @@
             document.getElementById('plant-loading').style.display = 'block';
             
             const originalFile = fileInput.files[0];
-            const compressedBlob = await resizeImage(originalFile, 400);
+            // DB에 텍스트 형태로 안정적으로 들어가도록 용량 압축 최적화 (300px 사이즈)
+            const compressedBlob = await resizeImage(originalFile, 300);
 
             const reader = new FileReader();
             reader.readAsDataURL(compressedBlob);
@@ -267,29 +268,31 @@
                 if (!container) { closeAllModals(); return; }
                 
                 const currentSign = container.querySelector('.signpost').innerText;
+                const base64ImageUrl = reader.result; // 압축된 이미지의 데이터 주소값
+
+                // 1. 화면 UI 즉시 변경
                 renderPlotOnIsland({ 
                     id: activePlotId, 
                     x: parseFloat(container.style.left), 
                     y: parseFloat(container.style.top), 
                     keyword: currentSign, 
                     status: 'planted', 
-                    image_url: reader.result 
+                    image_url: base64ImageUrl 
                 });
 
+                // 2. Storage 우회하여 DB 직접 업데이트 강제 집행 (가장 안전한 매칭 방식)
                 try {
                     if(!dbClient) throw new Error("No DB");
-                    const fileName = `img_${Date.now()}.jpg`;
-                    const { error: storageError } = await dbClient.storage.from('gardening-images').upload(fileName, compressedBlob, { contentType: 'image/jpeg' });
-                    if (storageError) throw storageError;
-                    const { data: urlData } = dbClient.storage.from('gardening-images').getPublicUrl(fileName);
                     
-                    // 정수 ID 매칭 오류를 전면 피하기 위해 'keyword'와 기존 'till' 상태를 타겟으로 정확히 업데이트 수행
-                    await dbClient.from('plots')
-                        .update({ status: 'planted', image_url: urlData.publicUrl })
+                    const { error } = await dbClient.from('plots')
+                        .update({ status: 'planted', image_url: base64ImageUrl })
                         .eq('keyword', currentSign)
                         .eq('status', 'till');
                         
-                } catch(e) { console.error("업로드 오류:", e); }
+                    if(error) console.error("DB 업데이트 실패:", error);
+                } catch(e) { 
+                    console.error("네트워크 통신 오류:", e); 
+                }
                 closeAllModals();
             }
         }
@@ -320,8 +323,6 @@
             try {
                 if(!dbClient) throw new Error("No DB");
                 await dbClient.from('history').insert([{ sentence: logText }]);
-                
-                // 수확할 때도 정확하게 매칭하여 지우도록 안전 조치
                 await dbClient.from('plots').delete().eq('keyword', keyword).eq('status', 'planted');
             } catch(e) { console.log("로컬 제거"); }
             closeAllModals();
