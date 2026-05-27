@@ -237,17 +237,19 @@
             if (btn.disabled) return; 
             btn.disabled = true;
 
-            const tempId = 'temp_' + Date.now();
-            renderPlotOnIsland({ id: tempId, x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' });
+            // 이제 시간 타임스탬프를 원본 ID로 연동하여 완벽 매칭 구조로 전환합니다.
+            const plotTime = new Date().toISOString();
+            const domId = 'plot_' + Date.now();
+            
+            renderPlotOnIsland({ id: domId, created_at: plotTime, x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' });
 
             try {
                 if(!dbClient) throw new Error("No DB");
-                await dbClient.from('plots').insert([{ x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' }]);
+                await dbClient.from('plots').insert([{ created_at: plotTime, x: clickCoord.x, y: clickCoord.y, keyword: keyword, status: 'till' }]);
             } catch(e) { console.log("로컬 반영"); }
             closeAllModals();
         }
 
-        // [구조 대변경] Storage 버킷 에러 우회 적용: 이미지 데이터를 DB에 직접 텍스트 형태로 다이렉트 업데이트합니다.
         async function dbPlantImage() {
             const fileInput = document.getElementById('input-file');
             if (!fileInput.files || !fileInput.files[0]) return alert('사진을 골라주세요!');
@@ -258,7 +260,6 @@
             document.getElementById('plant-loading').style.display = 'block';
             
             const originalFile = fileInput.files[0];
-            // DB에 텍스트 형태로 안정적으로 들어가도록 용량 압축 최적화 (300px 사이즈)
             const compressedBlob = await resizeImage(originalFile, 300);
 
             const reader = new FileReader();
@@ -268,11 +269,12 @@
                 if (!container) { closeAllModals(); return; }
                 
                 const currentSign = container.querySelector('.signpost').innerText;
-                const base64ImageUrl = reader.result; // 압축된 이미지의 데이터 주소값
+                const dbTime = container.getAttribute('data-time'); // 고유 매칭 키값 추출
+                const base64ImageUrl = reader.result;
 
-                // 1. 화면 UI 즉시 변경
                 renderPlotOnIsland({ 
                     id: activePlotId, 
+                    created_at: dbTime,
                     x: parseFloat(container.style.left), 
                     y: parseFloat(container.style.top), 
                     keyword: currentSign, 
@@ -280,18 +282,17 @@
                     image_url: base64ImageUrl 
                 });
 
-                // 2. Storage 우회하여 DB 직접 업데이트 강제 집행 (가장 안전한 매칭 방식)
                 try {
                     if(!dbClient) throw new Error("No DB");
                     
+                    // 가장 확실한 유일키인 'created_at'(생성시간)을 기준으로 매칭해 정확한 타겟에 완벽하게 꽂아 넣습니다.
                     const { error } = await dbClient.from('plots')
                         .update({ status: 'planted', image_url: base64ImageUrl })
-                        .eq('keyword', currentSign)
-                        .eq('status', 'till');
+                        .eq('created_at', dbTime);
                         
-                    if(error) console.error("DB 업데이트 실패:", error);
+                    if(error) console.error("업데이트 에러 로그:", error);
                 } catch(e) { 
-                    console.error("네트워크 통신 오류:", e); 
+                    console.error("통신 장애:", e); 
                 }
                 closeAllModals();
             }
@@ -309,6 +310,7 @@
             if (!container) { closeAllModals(); return; }
             
             const keyword = container.querySelector('.signpost').innerText;
+            const dbTime = container.getAttribute('data-time');
             const logText = `✨ ${keyword} 심은 데 ${resultInput} 났다!`;
 
             const list = document.getElementById('history-list');
@@ -323,32 +325,35 @@
             try {
                 if(!dbClient) throw new Error("No DB");
                 await dbClient.from('history').insert([{ sentence: logText }]);
-                await dbClient.from('plots').delete().eq('keyword', keyword).eq('status', 'planted');
+                await dbClient.from('plots').delete().eq('created_at', dbTime);
             } catch(e) { console.log("로컬 제거"); }
             closeAllModals();
         }
 
         function renderPlotOnIsland(plot) {
-            let el = document.getElementById(plot.id);
+            // 외부 DB 로드 시 고유 키값 보존 처리
+            const domId = plot.id || 'plot_' + new Date(plot.created_at).getTime();
+            let el = document.getElementById(domId);
             if (!el) {
-                el = document.createElement('div'); el.className = 'plot-container'; el.id = plot.id;
+                el = document.createElement('div'); el.className = 'plot-container'; el.id = domId;
                 island.appendChild(el);
             }
             el.innerHTML = ''; el.style.left = plot.x + 'px'; el.style.top = plot.y + 'px';
+            el.setAttribute('data-time', plot.created_at); // 고유 시간 속성 부여
             
             if (plot.status === 'till') {
                 const patch = document.createElement('div'); patch.className = 'patch';
-                patch.onclick = (e) => { e.stopPropagation(); activePlotId = plot.id; document.getElementById('target-keyword').innerText = `'${plot.keyword}'`; openModal('modal-plant'); };
+                patch.onclick = (e) => { e.stopPropagation(); activePlotId = domId; document.getElementById('target-keyword').innerText = `'${plot.keyword}'`; openModal('modal-plant'); };
                 el.appendChild(patch);
             } else if (plot.status === 'planted') {
                 const img = document.createElement('img'); img.src = plot.image_url; img.className = 'planted-image';
-                img.onclick = (e) => { e.stopPropagation(); activePlotId = plot.id; document.getElementById('harvest-keyword').innerText = `'${plot.keyword}'`; openModal('modal-harvest'); };
+                img.onclick = (e) => { e.stopPropagation(); activePlotId = domId; document.getElementById('harvest-keyword').innerText = `'${plot.keyword}'`; openModal('modal-harvest'); };
                 el.appendChild(img);
             }
             
             const sign = document.createElement('div'); sign.className = 'signpost'; sign.innerText = plot.keyword;
             sign.onclick = (e) => {
-                e.stopPropagation(); activePlotId = plot.id;
+                e.stopPropagation(); activePlotId = domId;
                 if (plot.status === 'till') { document.getElementById('target-keyword').innerText = `'${plot.keyword}'`; openModal('modal-plant'); }
                 else { document.getElementById('harvest-keyword').innerText = `'${plot.keyword}'`; openModal('modal-harvest'); }
             };
@@ -370,8 +375,10 @@
                     if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
                         renderPlotOnIsland(payload.new);
                     } else if (payload.eventType === 'DELETE') {
-                        const el = document.getElementById(payload.old.id); 
-                        if (el) el.remove();
+                        const targetTime = payload.old.created_at;
+                        document.querySelectorAll('.plot-container').forEach(el => {
+                            if(el.getAttribute('data-time') === targetTime) el.remove();
+                        });
                     }
                 }).subscribe();
                 
