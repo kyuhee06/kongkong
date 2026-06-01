@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>콩 심은 데 🫘 난다 - 실시간 가드닝</title>
+    <title>콩 심은 데 🫘 난다 - 온라인 사진 가드닝</title>
     
     <style>
         @font-face {
@@ -62,7 +62,7 @@
             font-size: 14px;
             line-height: 24px;
             font-weight: bold;
-            color: #9BFF7A;
+            /* 기존 일괄 색상 지정을 삭제하고 자바스크립트에서 동적 처리합니다 */
         }
         #history-list::-webkit-scrollbar { width: 6px; }
         #history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
@@ -580,7 +580,6 @@
             }
         }
 
-        // ✨ 이모지가 들어간 최초 오리지널 dbHarvestPlot 함수
         async function dbHarvestPlot() {
             const resultInput = document.getElementById('input-result').value.trim();
             if (!resultInput) return alert('실제 무엇이 열렸는지 작성해 주세요!');
@@ -609,8 +608,8 @@
                 }
             }
             
-            // 최초 원본 그대로 ✨ 이모지 형식 통문장 저장
-            const logText = `✨ ${keyword} 심은 데 ${resultInput} 났다!`;
+            // 디자인 수정: 기존 ✨ 이모지에서 🫘 이모지로 변경하여 로컬 배열에 추가
+            const logText = `🫘 ${keyword} 심은 데 ${resultInput} 났다!`;
             historyData.unshift(logText);
             renderHistoryUI();
             
@@ -624,12 +623,33 @@
             closeAllModals();
         }
 
+        // 디자인 수정: 일치/불일치 텍스트 색상 분기 렌더링 함수
         function renderHistoryUI() {
             const list = document.getElementById('history-list');
             list.innerHTML = '';
+            
             historyData.forEach(text => {
                 const li = document.createElement('li');
                 li.innerText = text;
+
+                // "🫘 " 또는 구버전 "✨ " 접두사 제거 후 텍스트 파싱
+                const cleanText = text.replace('🫘 ', '').replace('✨ ', '');
+                const parts = cleanText.split(' 심은 데 ');
+                
+                if (parts.length === 2) {
+                    const keyword = parts[0].trim();
+                    const result = parts[1].replace(' 났다!', '').trim();
+
+                    // 디자인 조건: 일치할 경우 9BFF7A, 불일치할 경우 D16483 색상 부여
+                    if (keyword === result) {
+                        li.style.color = '#9BFF7A';
+                    } else {
+                        li.style.color = '#D16483';
+                    }
+                } else {
+                    li.style.color = '#9BFF7A'; // 예외 예방 기본색
+                }
+
                 list.appendChild(li);
             });
         }
@@ -670,14 +690,14 @@
             el.appendChild(sign);
         }
 
-        // 최초 원본 데이터 바인딩 init 함수
         async function init() {
             try {
                 if(!dbClient) return;
                 const { data: plots } = await dbClient.from('plots').select('*');
                 if (plots) plots.forEach(renderPlotOnIsland);
                 
-                const { data: logs } = await dbClient.from('history').select('*');
+                // 기능 수정: 불러올 때 가장 최신 데이터가 위로 오도록 내림차순(ascending: false) 설정
+                const { data: logs } = await dbClient.from('history').select('*').order('created_at', { ascending: false });
                 if (logs) {
                     historyData = logs.map(log => log.sentence);
                     renderHistoryUI();
@@ -696,6 +716,7 @@
                 
                 dbClient.channel('public:history').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'history' }, payload => {
                     if (!historyData.includes(payload.new.sentence)) {
+                        // 실시간 이벤트 수신 시 배열의 가장 앞에 배치하여 최신순 정렬 규칙 고수
                         historyData.unshift(payload.new.sentence);
                         renderHistoryUI();
                     }
