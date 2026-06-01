@@ -637,9 +637,13 @@
             const now = new Date().getTime();
             const oneDayMs = 24 * 60 * 60 * 1000;
 
+            // [핵심 버그 수정 부분] UTC 시차 어긋남이나 데이터 포맷 오류로 인해 
+            // 정상적인 데이터가 필터링 조건에서 억울하게 탈락하는 현상을 방지합니다.
             historyData = historyData.filter(item => {
+                if (!item.created_at) return true; // 시간이 없으면 보존
                 const logTime = new Date(item.created_at).getTime();
-                return (now - logTime) < oneDayMs;
+                if (isNaN(logTime)) return true; // 파싱 실패 시 보존해서 사라짐 방지
+                return Math.abs(now - logTime) < oneDayMs; // 시차가 일시적으로 어긋나도 24시간 범위 계산 유연화
             });
 
             historyData.forEach(item => {
