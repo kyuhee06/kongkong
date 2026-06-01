@@ -55,7 +55,21 @@
         #history-list { margin-top: 15px; color: #d1ff36; font-weight: bold; list-style: none; padding: 0; pointer-events: auto; }
 
         .plot-container { position: absolute; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%); z-index: 2; }
-        .patch { width: 120px; height: 70px; background-color: #e3b265; border-radius: 50%; border: 2px dashed #c59448; cursor: pointer; box-shadow: inset 0 5px 5px rgba(0,0,0,0.2); }
+      .patch { 
+            width: 120px; 
+            height: 120px; 
+
+            background-image: url('tilled.png'); 
+            background-size: contain;      /* 이미지가 구겨지거나 잘리지 않고 틀 안에 쏙 들어가게 합니다 */
+            background-repeat: no-repeat;  /* 이미지가 바둑판처럼 반복되어 나오는 것을 막습니다 */
+            background-position: center;   /* 이미지를 한가운데 정렬합니다 */
+
+            border: none;
+            background-color: transparent; /* 배경을 투명하게 해서 PNG의 투명한 부분이 바다/섬에 잘 얹히게 합니다 */
+            box-shadow: none;
+    
+    cursor: pointer; 
+}
         .planted-image { max-width: 160px; max-height: 130px; object-fit: contain; border-radius: 6px; box-shadow: 5px 5px 15px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.2s; }
         .planted-image:hover { transform: scale(1.05); }
         .signpost { margin-top: 8px; background-color: #c9843b; color: white; padding: 5px 14px; border-radius: 4px; font-size: 13px; border: 2px solid #a06222; box-shadow: 1px 2px 4px rgba(0,0,0,0.3); cursor: pointer; font-weight: bold; }
