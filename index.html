@@ -74,33 +74,37 @@
         }
 
         /* [수정] JS 클래스 이름인 .planted-image로 완벽하게 매칭 및 정렬 구현 */
-        .planted-image {
-            position: absolute; 
-            left: 50%;
-            
-            /* 밭의 높이가 65px이므로, 세로 중앙선은 아래에서 32.5px 위 지점입니다. */
-            bottom: 32.5px;  
-            transform: translateX(-50%);
-            
-            /* 요청사항: 비행기 모양대로 아래로만 떨어지는 반투명 그림자 */
-            filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.5)); 
-            
-            /* 요청사항: 모서리 곡률 제거 */
-            border-radius: 0; 
-            
-            /* 크기 조절 제어 */
-            max-width: 210px; 
-            height: auto;      /* 비율 깨짐 및 투명 공백 방지를 위해 height는 auto 추천 */
-            max-height: 130px; /* 너무 거대해지는 것을 방지 */
-            object-fit: contain; 
-            
-            z-index: 3; 
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .planted-image:hover {
-            transform: translateX(-50%) scale(1.05);
-        }
+/* 심어진 아이템 이미지 (.planted-image) 전체 수정 */
+.planted-image {
+    position: absolute;       /* 정밀한 위치 정렬을 위해 absolute 사용 유지 */
+    
+    /* 1. 가로 정렬: 중앙 */
+    left: 50%;
+    
+    /* 2. [요청사항 반영] 세로 정렬: 이미지의 아래끝선을 부모(밭)의 세로 기준 50%(중앙)에 배치 */
+    /* bottom: 50%를 사용하여 정중앙을 기준으로 설정합니다. */
+    bottom: 50%; 
+    
+    /* [핵심 수정] transform은 중복 없이 딱 한 번만 선언합니다. */
+    /* 가로 중앙 정렬(-50%)만 유지하고, 세로는 이미 bottom: 50%로 중앙에 갔으니 건드리지 않습니다. */
+    transform: translateX(-50%);
+    
+    /* 3. [요청사항 반영] 그림자 설정: 블러 없이, 색은 #7F420866 (갈색 40% 투명도) */
+    /* filter: drop-shadow(offset-x offset-y blur-radius color) */
+    filter: drop-shadow(0 4px 0 rgba(127, 66, 8, 0.4)); 
+    /* color 부분을 rgba로 변환하여 투명도를 0.4(40%)로 지정했습니다. */
+    
+    /* 4. [요청사항 반영] 모서리 곡률 제거 */
+    border-radius: 0; 
+    
+    /* 5. [요청사항 반영] 이미지 최대 크기 조절: 높이/넓이 모두 200픽셀 최대 */
+    width: 200px;           /* 실제 원하는 최대 크기로 고정합니다. */
+    height: 200px;          
+    object-fit: contain;    /* 이 속성 덕분에 찌그러지지 않고 비율이 유지됩니다. */
+    
+    /* 이미지가 밭 이미지 위로 얹히도록 z-index 설정 */
+    z-index: 1; 
+}
 
         .signpost {
             margin-top: 8px;
