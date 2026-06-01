@@ -168,7 +168,7 @@
             word-break: keep-all;
         }
 
-        /* [수정] 수확 모달 내부 문구 하단 마진 제거 */
+        /* [수정] 수확 문구 하단 마진을 0으로 강제 리셋 */
         #modal-harvest p.sub-text {
             margin-top: 30px;
             margin-bottom: 0px !important; 
@@ -219,15 +219,15 @@
         .modal button.action-btn:hover { background-color: #5B310A; }
         .modal button.action-btn:disabled { background-color: #aaaaaa; cursor: not-allowed; }
 
-        /* [수정] 수확하기 버튼 마진을 화면상 무조건 20px로 설정 */
+        /* [수정] 안내문구 바로 뒤에 배치하여 화면상 간격을 무조건 10px로 지정 */
         #btn-harvest {
-            margin-top: 20px !important;
+            margin-top: 10px !important;
         }
 
         .harvest-input-row {
             display: flex;
             align-items: center;
-            justify-content: center; /* [수정] 고정 너비 지정에 따른 중앙 정렬로 변경 */
+            justify-content: center; 
             margin: 20px 0 0 0;
             padding-left: 0px;  
             padding-right: 0px; 
@@ -235,7 +235,6 @@
             width: 100%;
         }
         
-        /* [수정] 수확 모달의 입력창 넓이를 무조건 205px로 설정 */
         .harvest-input-row input[type="text"] {
             flex: none;
             width: 205px !important;
@@ -247,7 +246,6 @@
             white-space: nowrap;
         }
 
-        /* [수정] 무엇을 위한 밭인가요? 모달창의 입력창 넓이를 무조건 260px로 설정 */
         #input-keyword {
             margin-top: 30px; 
             width: 260px !important;
