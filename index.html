@@ -72,39 +72,39 @@
 }
         .planted-image { max-width: 160px; max-height: 130px; object-fit: contain; border-radius: 6px; box-shadow: 5px 5px 15px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.2s; }
         .planted-image:hover { transform: scale(1.05); }
-      .signpost {
-    margin-top: 8px;
+        .signpost {
+            margin-top: 8px;
     
     /* 1. 크기 설정: 가로는 글자 길이에 맞게 늘어나고, 세로는 고정 */
-    width: fit-content; 
-    min-width: 60px;      /* 글자가 아주 짧아도 최소 이 크기는 유지 */
-    height: 25px;          /* 푯말 높이 */
+            width: fit-content; 
+            min-width: 60px;      /* 글자가 아주 짧아도 최소 이 크기는 유지 */
+            height: 25px;          /* 푯말 높이 */
     
     /* 2. 텍스트 정중앙 정렬 및 가독성 확보 */
-    display: flex;
-    align-items: center;   
-    justify-content: center;
-    padding: 0 6px;       /* 글자 좌우로 생길 여백 (글자가 늘어나도 푯말이 예쁘게 유지됨) */
-    box-sizing: border-box;
+            display: flex;
+            align-items: center;   
+            justify-content: center;
+            padding: 0 6px;       /* 글자 좌우로 생길 여백 (글자가 늘어나도 푯말이 예쁘게 유지됨) */
+            box-sizing: border-box;
 
     /* 3. [도형 그리기 핵심] 보내주신 이미지 색상 및 입체감 반영 */
-    background-color: ##CF9640;       /* 푯말의 메인 밝은 갈색 */
-    border-radius: 3px;             /* 부드럽게 라운딩된 모서리 */
+            background-color: #CF9640;       /* 푯말의 메인 밝은 갈색 */
+            border-radius: 3px;             /* 부드럽게 라운딩된 모서리 */
     
     /* 외곽선과 하단 두꺼운 입체 층을 표현하기 위해 그림자(box-shadow)를 겹쳐서 씁니다 */
-    box-shadow: 
-        0 0 0 1.5px ##AF7032,           /* 전체를 감싸는 진한 갈색 외곽선 */
-        0 4px 0 0px #985A22,         /* 이미지 하단에 있던 6px 두께의 짙은 입체 갈색 층 */
+            box-shadow: 
+            0 0 0 1.5px #AF7032,           /* 전체를 감싸는 진한 갈색 외곽선 */
+            0 4px 0 0px #985A22;         /* 이미지 하단에 있던 6px 두께의 짙은 입체 갈색 층 */
     
 
     /* 4. 폰트 스타일링 */
-    color: white;
-    font-size: 16px;
-    font-weight: normal;
-    
-    border: none; /* 기존 border 제거 */
-    cursor: pointer;
-}
+           color: white;
+            font-size: 16px;
+            font-weight: normal;
+     
+            border: none; /* 기존 border 제거 */
+            cursor: pointer;
+} 
 
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 340px; background-color: #ca934a; border: 4px solid #8d5e27; border-radius: 20px; padding: 25px; box-shadow: 6px 6px 0px rgba(0,0,0,0.2); z-index: 100; color: white; text-align: center; }
         .modal-close { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 22px; color: #724617; }
