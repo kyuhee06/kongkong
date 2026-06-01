@@ -168,7 +168,6 @@
             word-break: keep-all;
         }
 
-        /* [수정] 수확 문구 하단 마진을 0으로 강제 리셋 */
         #modal-harvest p.sub-text {
             margin-top: 30px;
             margin-bottom: -10px !important; 
@@ -219,7 +218,6 @@
         .modal button.action-btn:hover { background-color: #5B310A; }
         .modal button.action-btn:disabled { background-color: #aaaaaa; cursor: not-allowed; }
 
-        /* [수정] 안내문구 바로 뒤에 배치하여 화면상 간격을 무조건 10px로 지정 */
         #btn-harvest {
             margin-top: 10px !important;
         }
@@ -634,19 +632,10 @@
             const list = document.getElementById('history-list');
             list.innerHTML = '';
 
-            const now = new Date().getTime();
-            const oneDayMs = 24 * 60 * 60 * 1000;
+            // [수정 완료] 시간 필터링을 완벽하게 제거하고 오직 '최신순 12개' 슬라이싱만 적용합니다.
+            const latestLogs = historyData.slice(0, 12);
 
-            // [핵심 버그 수정 부분] UTC 시차 어긋남이나 데이터 포맷 오류로 인해 
-            // 정상적인 데이터가 필터링 조건에서 억울하게 탈락하는 현상을 방지합니다.
-            historyData = historyData.filter(item => {
-                if (!item.created_at) return true; // 시간이 없으면 보존
-                const logTime = new Date(item.created_at).getTime();
-                if (isNaN(logTime)) return true; // 파싱 실패 시 보존해서 사라짐 방지
-                return Math.abs(now - logTime) < oneDayMs; // 시차가 일시적으로 어긋나도 24시간 범위 계산 유연화
-            });
-
-            historyData.forEach(item => {
+            latestLogs.forEach(item => {
                 const li = document.createElement('li');
                 li.innerText = `🫘 ${item.keyword} 심은 데 ${item.result} 났다!`;
                 
@@ -658,8 +647,6 @@
                 list.appendChild(li);
             });
         }
-
-        setInterval(renderHistoryUI, 60000);
 
         function renderPlotOnIsland(plot) {
             const domId = plot.id || 'plot_' + new Date(plot.created_at).getTime();
