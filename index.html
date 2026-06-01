@@ -70,8 +70,37 @@
     
     cursor: pointer; 
 }
-        .planted-image { max-width: 160px; max-height: 130px; object-fit: contain; border-radius: 6px; box-shadow: 5px 5px 15px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.2s; }
-        .planted-image:hover { transform: scale(1.05); }
+/* 부모 밭 (planted 상태) */
+    .plot.planted {
+          position: relative; /* 자식 이미지 정렬을 위한 기준점 설정 */
+    /* 원본 밭 이미지는 이 div의 background-image로 유지되어야 함 */
+}
+
+/* 심어진 아이템 이미지 */
+        .plot.planted img {
+           position: absolute; /* 정밀한 정렬을 위해 absolute 사용 */
+    
+    /* 가로 정렬: 중앙 */
+           left: 50%;
+           transform: translateX(-50%);
+    
+    /* 세로 정렬: 이미지의 아래끝선이 밭의 중앙에 위치하도록 설정 */
+           bottom: 50%; /* 이미지 아래끝선이 부모 중앙에 딱 걸림 */
+    
+    /* 이미지 그림자: 비행기 모양대로, 아래로만, 반투명 */
+    /* drop-shadow(offset-x offset-y blur-radius color) */
+           filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.5)); 
+    
+    /* 모서리 곡률 제거 */
+            border-radius: 0; 
+    
+    /* 이미지 크기 조절 (선택 사항, 밭 크기에 따라 필요할 수 있음) */
+            max-width: 80%; /* 밭보다 크지 않게 조절 */
+            height: auto;
+    
+    /* 이미지가 밭 이미지 위로 얹히도록 z-index 설정 */
+           z-index: 1; 
+}
         .signpost {
             margin-top: 8px;
     
@@ -89,7 +118,7 @@
 
     /* 3. [도형 그리기 핵심] 보내주신 이미지 색상 및 입체감 반영 */
             background-color: #CF9640;       /* 푯말의 메인 밝은 갈색 */
-            border-radius: 3px;             /* 부드럽게 라운딩된 모서리 */
+            border-radius: 4px;             /* 부드럽게 라운딩된 모서리 */
     
     /* 외곽선과 하단 두꺼운 입체 층을 표현하기 위해 그림자(box-shadow)를 겹쳐서 씁니다 */
             box-shadow: 
