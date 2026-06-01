@@ -18,10 +18,7 @@
             width: 100%; height: 100%;
             overflow: hidden; 
             background: radial-gradient(circle, #428bca 0%, #22527a 100%);
-            
-            /* 2. 등록한 폰트 이름인 'RoundedFixedsys'를 여기에 적어줍니다 */
             font-family: 'RoundedFixedsys', sans-serif;
-            
             user-select: none;
         }
 
@@ -32,7 +29,6 @@
 
         #island {
             position: absolute; 
-            /* 계산 오류를 방지하기 위해 섬 크기를 명확히 고정 */
             width: 4500px; height: 4500px;
             background-color: #9cb945; 
             border-radius: 600px; 
@@ -54,89 +50,80 @@
         }
         #history-list { margin-top: 15px; color: #d1ff36; font-weight: bold; list-style: none; padding: 0; pointer-events: auto; }
 
-        .plot-container { position: absolute; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%); z-index: 2; }
+        /* [수정] 자식 이미지들의 정확한 absolute 기준점이 되도록 relative 부여 */
+        .plot-container { 
+            position: absolute; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            transform: translate(-50%, -50%); 
+            z-index: 2; 
+        }
+
         .patch { 
             width: 120px; 
             height: 65px; 
-
             background-image: url('tilled.png'); 
-            background-size: contain;      /* 이미지가 구겨지거나 잘리지 않고 틀 안에 쏙 들어가게 합니다 */
-            background-repeat: no-repeat;  /* 이미지가 바둑판처럼 반복되어 나오는 것을 막습니다 */
-            background-position: center;   /* 이미지를 한가운데 정렬합니다 */
-
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center; 
             border: none;
-            background-color: transparent; /* 배경을 투명하게 해서 PNG의 투명한 부분이 바다/섬에 잘 얹히게 합니다 */
+            background-color: transparent; 
             box-shadow: none;
-    
-    cursor: pointer; 
-}
-/* 부모 밭 (planted 상태) */
-    .plot.planted {
-          position: relative; /* 자식 이미지 정렬을 위한 기준점 설정 */
-    /* 원본 밭 이미지는 이 div의 background-image로 유지되어야 함 */
-}
+            cursor: pointer; 
+        }
 
-/* 심어진 아이템 이미지 */
-.plot.planted img {
-    position: absolute; /* 정밀한 정렬을 위해 absolute 사용 */
-    
-    /* 1. 가로 정렬: 중앙 */
-    left: 50%;
-    
-    /* [핵심 수정] 세로 정렬: 이미지의 아래끝선을 부모(밭)의 세로 기준 50%(중앙)에 배치 */
-    bottom: 50%; 
-    
-    /* [핵심 수정] transform은 중복 없이 딱 한 번만 선언합니다. */
-    /* 가로 중앙 정렬(-50%)만 유지하고, 세로는 이미 bottom: 50%로 중앙에 갔으니 건드리지 않습니다. */
-    transform: translateX(-50%);
-    
-    /* 이미지 그림자: 비행기 모양대로, 아래로만, 반투명 */
-    filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.5)); 
-    
-    /* 모서리 곡률 제거 */
-    border-radius: 0; 
-    
-    /* 이미지 크기 조절 */
-    max-width: 210px; 
-    height: 210px;
-    object-fit: contain; /* 크기를 강제로 지정했을 때 이미지가 찌그러지지 않도록 방지 */
-    
-    /* 이미지가 밭 이미지 위로 얹히도록 z-index 설정 */
-    z-index: 1; 
-}
+        /* [수정] JS 클래스 이름인 .planted-image로 완벽하게 매칭 및 정렬 구현 */
+        .planted-image {
+            position: absolute; 
+            left: 50%;
+            
+            /* 밭의 높이가 65px이므로, 세로 중앙선은 아래에서 32.5px 위 지점입니다. */
+            bottom: 32.5px;  
+            transform: translateX(-50%);
+            
+            /* 요청사항: 비행기 모양대로 아래로만 떨어지는 반투명 그림자 */
+            filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.5)); 
+            
+            /* 요청사항: 모서리 곡률 제거 */
+            border-radius: 0; 
+            
+            /* 크기 조절 제어 */
+            max-width: 210px; 
+            height: auto;      /* 비율 깨짐 및 투명 공백 방지를 위해 height는 auto 추천 */
+            max-height: 130px; /* 너무 거대해지는 것을 방지 */
+            object-fit: contain; 
+            
+            z-index: 3; 
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .planted-image:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+
         .signpost {
             margin-top: 8px;
-    
-    /* 1. 크기 설정: 가로는 글자 길이에 맞게 늘어나고, 세로는 고정 */
             width: fit-content; 
-            min-width: 60px;      /* 글자가 아주 짧아도 최소 이 크기는 유지 */
-            height: 25px;          /* 푯말 높이 */
-    
-    /* 2. 텍스트 정중앙 정렬 및 가독성 확보 */
+            min-width: 60px;      
+            height: 25px;          
             display: flex;
             align-items: center;   
             justify-content: center;
-            padding: 0 6px;       /* 글자 좌우로 생길 여백 (글자가 늘어나도 푯말이 예쁘게 유지됨) */
+            padding: 0 6px;       
             box-sizing: border-box;
-
-    /* 3. [도형 그리기 핵심] 보내주신 이미지 색상 및 입체감 반영 */
-            background-color: #CF9640;       /* 푯말의 메인 밝은 갈색 */
-            border-radius: 4px;             /* 부드럽게 라운딩된 모서리 */
-    
-    /* 외곽선과 하단 두꺼운 입체 층을 표현하기 위해 그림자(box-shadow)를 겹쳐서 씁니다 */
+            background-color: #CF9640;       
+            border-radius: 4px;             
             box-shadow: 
-            0 0 0 1.5px #AF7032,           /* 전체를 감싸는 진한 갈색 외곽선 */
-            0 4px 0 0px #985A22;         /* 이미지 하단에 있던 6px 두께의 짙은 입체 갈색 층 */
-    
-
-    /* 4. 폰트 스타일링 */
-           color: white;
+                0 0 0 1.5px #AF7032,           
+                0 4px 0 0px #985A22;         
+            color: white;
             font-size: 16px;
             font-weight: normal;
-     
-            border: none; /* 기존 border 제거 */
+            border: none; 
             cursor: pointer;
-} 
+            z-index: 4; /* 푯말이 이미지에 가려지지 않게 정돈 */
+        } 
 
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 340px; background-color: #ca934a; border: 4px solid #8d5e27; border-radius: 20px; padding: 25px; box-shadow: 6px 6px 0px rgba(0,0,0,0.2); z-index: 100; color: white; text-align: center; }
         .modal-close { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 22px; color: #724617; }
@@ -225,14 +212,12 @@
             });
         }
 
-        // --- [수정] 경계선 잘림 현상을 해결한 드래그 한계 엔진 ---
         let isDragging = false;
         let camX = -1500, camY = -1500; 
         let startX, startY;
         let startScreenX = 0, startScreenY = 0;
 
         function updateCamera() {
-            // 하단/우측 짤림 방지: 테두리(border 30px * 2)가 포함된 실제 섬 크기를 바탕으로 마지노선 계산
             const minX = window.innerWidth - island.offsetWidth;
             const minY = window.innerHeight - island.offsetHeight;
             
@@ -426,6 +411,7 @@
             closeAllModals();
         }
 
+        /* [수정] 밭 이미지 유실 및 정렬 버그를 완벽하게 고친 핵심 함수 */
         function renderPlotOnIsland(plot) {
             const domId = plot.id || 'plot_' + new Date(plot.created_at).getTime();
             let el = document.getElementById(domId);
@@ -436,16 +422,27 @@
             el.innerHTML = ''; el.style.left = plot.x + 'px'; el.style.top = plot.y + 'px';
             el.setAttribute('data-time', plot.created_at);
             
+            // 1. 상태가 무엇이든 간에 무조건 기반이 되는 '밭(.patch)' 상자를 화면에 먼저 생성합니다.
+            const patch = document.createElement('div'); 
+            patch.className = 'patch';
+            el.appendChild(patch);
+
+            // 2. 밭에 걸릴 클릭 이벤트를 상태별 모달로 정의합니다.
             if (plot.status === 'till') {
-                const patch = document.createElement('div'); patch.className = 'patch';
                 patch.onclick = (e) => { e.stopPropagation(); activePlotId = domId; document.getElementById('target-keyword').innerText = `'${plot.keyword}'`; openModal('modal-plant'); };
-                el.appendChild(patch);
-            } else if (plot.status === 'planted') {
-                const img = document.createElement('img'); img.src = plot.image_url; img.className = 'planted-image';
+            } 
+            else if (plot.status === 'planted') {
+                patch.onclick = (e) => { e.stopPropagation(); activePlotId = domId; document.getElementById('harvest-keyword').innerText = `'${plot.keyword}'`; openModal('modal-harvest'); };
+                
+                // 3. planted 상태라면 밭 지우지 않고, 그 위에 이미지(.planted-image)를 자식으로 추가로 얹습니다.
+                const img = document.createElement('img'); 
+                img.src = plot.image_url; 
+                img.className = 'planted-image';
                 img.onclick = (e) => { e.stopPropagation(); activePlotId = domId; document.getElementById('harvest-keyword').innerText = `'${plot.keyword}'`; openModal('modal-harvest'); };
                 el.appendChild(img);
             }
             
+            // 4. 공통 요소인 푯말을 생성합니다.
             const sign = document.createElement('div'); sign.className = 'signpost'; sign.innerText = plot.keyword;
             sign.onclick = (e) => {
                 e.stopPropagation(); activePlotId = domId;
@@ -493,9 +490,7 @@
             document.getElementById(id).style.display = 'block'; 
         }
 
-        // 창 크기가 바뀔 때 한계선도 실시간 재계산 하도록 추가
         window.addEventListener('resize', updateCamera);
-
         init();
     </script>
 </body>
