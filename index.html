@@ -356,7 +356,7 @@
         
         let activePlotId = null;
         let clickCoord = { x: 0, y: 0 };
-        let historyData = [];
+        let historyData = []; // 초기 버전처럼 문자열 전체 배열로 관리합니다.
 
         const closeAllModals = () => {
             overlay.style.display = 'none';
@@ -579,6 +579,7 @@
             }
         }
 
+        // 초기 오리지널 수확 함수 양식으로 완벽히 복원
         async function dbHarvestPlot() {
             const resultInput = document.getElementById('input-result').value.trim();
             if (!resultInput) return alert('실제 무엇이 열렸는지 작성해 주세요!');
@@ -607,31 +608,21 @@
                 }
             }
             
-            const logItem = {
-                id: 'log_' + Date.now(),
-                keyword: keyword,
-                result: resultInput,
+            // 초기 버전과 똑같이 순수 통문장(sentence) 형태로 기록 처리
+            const logText = `🫘 ${keyword} 심은 데 ${resultInput} 났다!`;
+            
+            historyData.unshift({
+                sentence: logText,
                 created_at: new Date().toISOString()
-            };
-
-            historyData.unshift(logItem);
+            });
             renderHistoryUI();
             
             container.remove();
 
             try {
                 if(!dbClient) throw new Error("No DB");
-                const logText = `🫘 ${keyword} 심은 데 ${resultInput} 났다!`;
-                
-                // [진짜 최종 해결책] Supabase 테이블 구조가 sentence 기반이든 keyword/result 분리 기반이든 
-                // 둘 다 정상 작동하도록 모든 데이터를 안전하게 전부 밀어넣어 버립니다. (정렬 파싱 붕괴 원천 방지)
-                await dbClient.from('history').insert([{ 
-                    sentence: logText, 
-                    keyword: keyword, 
-                    result: resultInput, 
-                    created_at: logItem.created_at 
-                }]);
-                
+                // 테이블에 존재하지 않는 컬럼(keyword, result)을 전부 배제하고 초기 오리지널 양식인 sentence 하나만 타겟팅합니다.
+                await dbClient.from('history').insert([{ sentence: logText }]);
                 await dbClient.from('plots').delete().eq('created_at', dbTime);
             } catch(e) { console.log("로컬 제거 및 기록"); }
             closeAllModals();
@@ -641,21 +632,26 @@
             const list = document.getElementById('history-list');
             list.innerHTML = '';
 
-            // 밀리초 기준 완전 강제 정렬 보장
-            historyData.sort((a, b) => {
-                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-            });
-
+            // 최신 글 12개 슬라이싱 보장
             const latestLogs = historyData.slice(0, 12);
 
             latestLogs.forEach(item => {
                 const li = document.createElement('li');
-                li.innerText = `🫘 ${item.keyword} 심은 데 ${item.result} 났다!`;
+                li.innerText = item.sentence;
                 
-                if (item.keyword === item.result) {
-                    li.style.color = '#9BFF7A';
+                // 단순 글자 비교 기반으로 텍스트 하이라이트 분기 처리
+                const clean = item.sentence.replace('🫘 ', '');
+                const parts = clean.split(' 심은 데 ');
+                if(parts.length === 2) {
+                    const kw = parts[0].trim();
+                    const rs = parts[1].replace(' 났다!', '').trim();
+                    if(kw === rs) {
+                        li.style.color = '#9BFF7A';
+                    } else {
+                        li.style.color = '#D16483';
+                    }
                 } else {
-                    li.style.color = '#D16483';
+                    li.style.color = '#9BFF7A';
                 }
                 list.appendChild(li);
             });
@@ -697,35 +693,17 @@
             el.appendChild(sign);
         }
 
+        // 오리지널 데이터 바인딩 로직 복구
         async function init() {
             try {
                 if(!dbClient) return;
                 const { data: plots } = await dbClient.from('plots').select('*');
                 if (plots) plots.forEach(renderPlotOnIsland);
                 
-                const { data: logs } = await dbClient.from('history').select('*');
+                // 오리지널 정렬 명령어 그대로 적용
+                const { data: logs } = await dbClient.from('history').select('*').order('created_at', { ascending: false });
                 if (logs) {
-                    historyData = logs.map(log => {
-                        // DB에 sentence가 비어있거나 깨졌을 때를 대비해 keyword/result 백업값 추출 추가
-                        let realKeyword = log.keyword;
-                        let realResult = log.result;
-
-                        if (log.sentence) {
-                            const cleanSentence = log.sentence.replace('🫘 ', '').replace('✨ ', '');
-                            const match = cleanSentence.match(/(.*) 심은 데 (.*) 났다!/);
-                            if (match) {
-                                if (!realKeyword) realKeyword = match[1].trim();
-                                if (!realResult) realResult = match[2].trim();
-                            }
-                        }
-                        
-                        return {
-                            id: 'log_' + new Date(log.created_at).getTime(),
-                            keyword: realKeyword || '공통',
-                            result: realResult || '알수없음',
-                            created_at: log.created_at
-                        };
-                    });
+                    historyData = logs;
                     renderHistoryUI();
                 }
                 
@@ -741,25 +719,8 @@
                 }).subscribe();
                 
                 dbClient.channel('public:history').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'history' }, payload => {
-                    let realKeyword = payload.new.keyword;
-                    let realResult = payload.new.result;
-
-                    if (payload.new.sentence) {
-                        const cleanSentence = payload.new.sentence.replace('🫘 ', '').replace('✨ ', '');
-                        const match = cleanSentence.match(/(.*) 심은 데 (.*) 났다!/);
-                        if (match) {
-                            if (!realKeyword) realKeyword = match[1].trim();
-                            if (!realResult) realResult = match[2].trim();
-                        }
-                    }
-
                     if (!historyData.some(h => h.created_at === payload.new.created_at)) {
-                        historyData.unshift({
-                            id: 'log_' + new Date(payload.new.created_at).getTime(),
-                            keyword: realKeyword || '공통',
-                            result: realResult || '알수없음',
-                            created_at: payload.new.created_at
-                        });
+                        historyData.unshift(payload.new);
                         renderHistoryUI();
                     }
                 }).subscribe();
