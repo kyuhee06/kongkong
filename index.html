@@ -77,30 +77,32 @@
 }
 
 /* 심어진 아이템 이미지 */
-        .plot.planted img {
-           position: absolute; /* 정밀한 정렬을 위해 absolute 사용 */
+.plot.planted img {
+    position: absolute; /* 정밀한 정렬을 위해 absolute 사용 */
     
-    /* 가로 정렬: 중앙 */
-           left: 50%;
-           transform: translateX(-50%);
+    /* 1. 가로 정렬: 중앙 */
+    left: 50%;
     
-           bottom: 0;               /* 이미지를 부모(밭)의 맨 아래 바닥에 붙입니다 */
-           transform-origin: bottom; /* transform 기준점을 이미지 아래로 고정 (중요) */
-           transform: translateX(-50%) translateY(50%);
+    /* [핵심 수정] 세로 정렬: 이미지의 아래끝선을 부모(밭)의 세로 기준 50%(중앙)에 배치 */
+    bottom: 50%; 
+    
+    /* [핵심 수정] transform은 중복 없이 딱 한 번만 선언합니다. */
+    /* 가로 중앙 정렬(-50%)만 유지하고, 세로는 이미 bottom: 50%로 중앙에 갔으니 건드리지 않습니다. */
+    transform: translateX(-50%);
     
     /* 이미지 그림자: 비행기 모양대로, 아래로만, 반투명 */
-    /* drop-shadow(offset-x offset-y blur-radius color) */
-           filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.5)); 
+    filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.5)); 
     
     /* 모서리 곡률 제거 */
-            border-radius: 0; 
+    border-radius: 0; 
     
-    /* 이미지 크기 조절 (선택 사항, 밭 크기에 따라 필요할 수 있음) */
-            max-width: 210px; /* 밭보다 크지 않게 조절 */
-            height: 210px;
+    /* 이미지 크기 조절 */
+    max-width: 210px; 
+    height: 210px;
+    object-fit: contain; /* 크기를 강제로 지정했을 때 이미지가 찌그러지지 않도록 방지 */
     
     /* 이미지가 밭 이미지 위로 얹히도록 z-index 설정 */
-           z-index: 1; 
+    z-index: 1; 
 }
         .signpost {
             margin-top: 8px;
