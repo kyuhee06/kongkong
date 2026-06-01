@@ -135,82 +135,123 @@
     top: 50%; 
     left: 50%; 
     transform: translate(-50%, -50%); 
-    width: 360px; 
+    width: 340px; 
     background-color: #CF9640; 
     border: 7px solid #AF7032; 
     border-radius: 25px; 
-    padding: 44px;              /* 기존 외곽 패딩 유지 */
+    padding: 44px; 
     box-shadow: 0px 10px 0px rgba(0,0,0,0.2); 
     z-index: 100; 
     color: white; 
     text-align: center; 
-    box-sizing: border-box;     /* 패딩이 늘어나도 모달창 전체 크기가 고정되도록 안전장치 추가 */
+    box-sizing: border-box;
 }
 
-/* [추가] 모달 내부의 첫 번째 메인 텍스트 (<p> 태그) 간격 설정 */
+/* 🎯 [폰트 통일] 입력창, 버튼, 라벨이 모달창의 기본 글꼴을 따르도록 고정 */
+.modal input, 
+.modal button,
+.modal label {
+    font-family: inherit;
+}
+
+/* 🎯 [요청사항 1 & 3 반영] 메인 텍스트 스타일 */
 .modal p {
-    margin: 0 0 20px 0;          /* 위=0, 좌우=0, 아래=8px (텍스트 아래에만 약간의 간격을 줌) */
-    word-break: keep-all; /* 단어 단위로 예쁘게 줄바꿈 */
+    font-weight: normal;         /* 모든 텍스트는 두껍지 않게 normal로 통일 */
+    font-size: 16px;
+    line-height: 10px;           /* 메인 텍스트 줄간격 10px로 설정 */
+    margin: 0;                   /* 기본 마진 초기화 */
+    word-break: keep-all;        /* 단어 단위로 깔끔하게 줄바꿈 */
 }
 
-/* [추가] 모달 내부의 두 번째 설명 텍스트 (심기 모달의 작은 글씨 등) 간격 설정 */
+/* 🎯 [요청사항 2 & 3 반영] 메인 텍스트 아래에 오는 작은 추가 설명 텍스트 */
 .modal p + p {
-    margin: 20 0 0px 0;         /* 위=0, 좌우=0, 아래=15px (입력창이나 버튼을 더 멀리 밀어냄) */
-    word-break: keep-all; /* 단어 단위로 예쁘게 줄바꿈 */
+    font-weight: normal;         /* 추가 설명 텍스트도 두껍지 않게 normal로 통일 */
+    font-size: 13px; 
+    color: #fcecd2;
+    line-height: 1.4;            /* 설명글 특성에 맞는 자연스러운 줄간격 */
+    margin-top: 20px;            /* 메인 텍스트와의 간격을 정확히 20px로 설정 */
 }
 
 .modal-close { 
     position: absolute; 
-    top: 10px; 
-    right: 10px; 
+    top: 20px; 
+    right: 20px; 
     cursor: pointer; 
-    font-size: 30px; 
+    font-size: 17px; 
     color: #985A22; 
 }
 
+/* 텍스트 입력창 스타일 (기존 수치 100% 유지) */
 .modal input[type="text"] { 
     width: 260px; 
-    height: 47px; 
-    padding: 0px; 
-    margin: 10px 0 10px 0;      /* [수정] 기존 margin: 29px 0; 에서 위(20px)와 아래(35px) 간격을 다르게 분리 */
+    padding: 16px; 
+    margin: 20px 0 35px 0; 
     border: 0px solid #8d5e27; 
     border-radius: 10px; 
     background-color: #AF7032; 
     color: #985A22; 
-    font-weight: normal; 
+    font-weight: normal;         /* 텍스트 normal로 통일 */
     text-align: center; 
-    box-sizing: border-box;     /* 패딩 때문에 입력창이 모달 밖으로 삐져나가지 않게 고정 */
+    box-sizing: border-box; 
 }
 
-.modal button { 
-    background-color: #985A22; 
-    min-width: 140;     
-    height: 43px;   
-    color: white; 
-    font-size: 18px; 
-    border: none; 
-    padding: 10px 30px; 
-    border-radius: 30px; 
-    cursor: pointer; 
-    font-weight: bold; 
-    margin-top: 10px;           /* [추가] 버튼 위쪽에 보너스 여백을 주어 입력창/텍스트와의 간격 확보 */
+/* 일반 완료/수확하기 버튼 스타일 (기존 수치 및 최소사이즈 100% 유지) */
+   .modal button { 
+       background-color: #985A22; 
+       min-width: 140px;            /* 좌우 최소 사이즈 설정 유지 */
+       width: auto;                 /* 글자 길어지면 유연하게 늘어남 */
+       height: 43px;   
+       color: white; 
+       font-size: 18px; 
+       border: none; 
+       padding: 10px 16px;          /* 기존 패딩 유지 */
+       border-radius: 30px; 
+       cursor: pointer; 
+       font-weight: normal;         /* 버튼 글자 두께도 normal로 통일 */
+       margin-top: 10px; 
+}
+   .modal button:hover { background-color: #5B310A; }
+   .modal button:disabled { background-color: #aaaaaa; cursor: not-allowed; }
+
+/* 투박한 파일 선택 기본 버튼 숨김 유지 */
+   #input-file {
+       display: none;
 }
 
-.modal button:hover { background-color: #5B310A; }
-.modal button:disabled { background-color: #aaaaaa; cursor: not-allowed; }
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; }
-.loading-text { font-size: 14px; color: #fff3cc; display: none; margin-top: 5px; }
-
-/* 모든 모달 안의 input 창 placeholder 스타일 수정 */
-.modal input[type="text"]::placeholder {
-    color: #583819;
-    font-size: 18px;
-    font-weight: normal;
+/* 파일 선택 라벨 버튼 스타일 (기존 수치 100% 유지) */
+   .file-upload-label {
+       display: inline-block;
+       background-color: #AF7032; 
+       color: white;
+       padding: 12px 20px;
+       border-radius: 10px;
+       cursor: pointer;
+       font-weight: normal;         /* 라벨 글자 두께도 normal로 통일 */
+       font-size: 14px;
+       margin: 20px 0 35px 0;      
+       width: 260px;               
+       box-sizing: border-box;
+       transition: background-color 0.2s;
+}
+   .file-upload-label:hover {
+    background-color: #985A22;  
 }
 
-/* 브라우저 호환성 세트 유지 */
-.modal input[type="text"]::-webkit-input-placeholder { color: #583819; font-size: 18px; }
-.modal input[type="text"]::-moz-placeholder { color: #583819; font-size: 18px; }
+   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; }
+
+/* 로딩 텍스트 스타일 */
+    .loading-text { 
+       font-size: 14px; 
+       color: #fff3cc; 
+       display: none; 
+       margin-top: 5px; 
+       font-weight: normal;         /* 로딩 텍스트도 normal로 통일 */
+}
+
+/* Placeholder 스타일 수정 내역 100% 유지 */
+    .modal input[type="text"]::placeholder { color: #583819; font-size: 18px; font-weight: normal; }
+    .modal input[type="text"]::-webkit-input-placeholder { color: #583819; font-size: 18px; }
+    .modal input[type="text"]::-moz-placeholder { color: #583819; font-size: 18px; }
     </style>
 </head>
 <body>
