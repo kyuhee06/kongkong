@@ -129,11 +129,11 @@
             z-index: 4; /* 푯말이 이미지에 가려지지 않게 정돈 */
         } 
 
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 340px; background-color: #ca934a; border: 4px solid #8d5e27; border-radius: 20px; padding: 25px; box-shadow: 6px 6px 0px rgba(0,0,0,0.2); z-index: 100; color: white; text-align: center; }
-        .modal-close { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 22px; color: #724617; }
-        .modal input[type="text"] { width: 80%; padding: 10px; margin: 15px 0; border: 2px solid #8d5e27; border-radius: 8px; background-color: #f7e0bc; color: #5c3a14; font-weight: bold; text-align: center; }
-        .modal button { background-color: #8d5e27; color: white; border: none; padding: 10px 24px; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        .modal button:hover { background-color: #724617; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 390px; background-color: #CF9640; border: 7px solid #AF7032; border-radius: 25px; padding: 44px; box-shadow: 0px 10px 0px rgba(0,0,0,0.2); z-index: 100; color: white; text-align: center; }
+        .modal-close { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 17px; color: #985A22; }
+        .modal input[type="text"] { width: 260px; padding: 16px; margin: 29px 0; border: 0px solid #8d5e27; border-radius: 10px; background-color: #AF7032; color: #985A22; font-weight: normal; text-align: center; }
+        .modal button { background-color: #985A22; color: white; border: none; padding: 10px 16px; border-radius: 30px; cursor: pointer; font-weight: bold; }
+        .modal button:hover { background-color: #5B310A; }
         .modal button:disabled { background-color: #aaaaaa; cursor: not-allowed; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; }
         .loading-text { font-size: 12px; color: #fff3cc; display: none; margin-top: 5px; }
@@ -156,25 +156,24 @@
 
     <div class="modal" id="modal-till">
         <div class="modal-close" onclick="closeAllModals()">×</div>
-        <p style="margin:0; font-weight:bold; font-size:16px;">여기에 어떤 밭을 갈까요?</p>
+        <p style="margin:0; font-weight:normal; font-size:16px;">무엇을 위한 밭인가요?</p>
         <input type="text" id="input-keyword" placeholder="예: 비행기, 고양이" maxlength="10">
-        <br><button id="btn-till" onclick="dbCreatePlot()">밭 갈기 완료</button>
+        <br><button id="btn-till" onclick="dbCreatePlot()">완료</button>
     </div>
 
     <div class="modal" id="modal-plant">
         <div class="modal-close" onclick="closeAllModals()">×</div>
-        <p style="margin:0; font-weight:bold; font-size:16px;"><span id="target-keyword" style="color:#fff3cc;"></span> 심을 데</p>
-        <p style="font-size:13px; margin:8px 0 15px 0; color:#fcecd2;">부합하는(혹은 엉뚱한) 이미지를 심어주세요.</p>
-        <input type="file" id="input-file" accept="image/*" style="margin: 10px 0; color: #5c3a14;">
+        <p style="margin:0; font-weight:normal; font-size:16px;"><span id="target-keyword" style="color:#ffffff;"></span>를 심으시겠습니까?</p>
+        <input type="file" id="input-file" accept="image/*" style="margin: 12px 0; color: #ECD5B3;">
         <div class="loading-text" id="plant-loading">이미지 압축 및 심는 중...</div>
-        <br><button id="btn-plant" onclick="dbPlantImage()">심기</button>
+        <br><button id="btn-plant" onclick="dbPlantImage()">사진 심기</button>
     </div>
 
     <div class="modal" id="modal-harvest">
         <div class="modal-close" onclick="closeAllModals()">×</div>
-        <p style="margin:0; font-weight:bold; font-size:16px;"><span id="harvest-keyword" style="color:#fff3cc;"></span> 심은 데</p>
-        <input type="text" id="input-result" placeholder="실제로 무엇이 났나요?" maxlength="10"> <span style="font-weight:bold; font-size:16px;">났다!</span>
-        <p style="font-size:12px; color:#fcecd2; margin-top:5px;">수확 시 이미지가 저장되고 밭은 초기화됩니다.</p>
+        <p style="margin:0; font-weight:bold; font-size:16px;"><span id="harvest-keyword" style="color:#ffffff;"></span> 심은 데</p>
+        <input type="text" id="input-result" placeholder="무엇이 났나요?" maxlength="10"> <span style="font-weight:normal; font-size:16px;">났다!</span>
+        <p style="font-size:12px; color:#ECD5B3; margin-top:5px;">수확 시 이미지가 저장되고 밭은 초기화됩니다.</p>
         <div class="loading-text" id="harvest-loading">수확 및 문장 기록 중...</div>
         <br><button id="btn-harvest" onclick="dbHarvestPlot()">수확하기</button>
     </div>
