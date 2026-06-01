@@ -129,24 +129,82 @@
             z-index: 4; /* 푯말이 이미지에 가려지지 않게 정돈 */
         } 
 
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 340px; background-color: #CF9640; border: 7px solid #AF7032; border-radius: 25px; padding: 40px; box-shadow: 0px 10px 0px rgba(0,0,0,0.2); z-index: 100; color: white; text-align: center; }
-        .modal-close { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 17px; color: #985A22; }
-        .modal input[type="text"] { width: 260px; padding: 16px; margin: 29px 0; border: 0px solid #8d5e27; border-radius: 10px; background-color: #AF7032; color: #985A22; font-weight: normal; text-align: center; }
-        .modal button { background-color: #985A22; color: white; border: none; padding: 10px 16px; border-radius: 30px; cursor: pointer; font-weight: bold; }
-        .modal button:hover { background-color: #5B310A; }
-        .modal button:disabled { background-color: #aaaaaa; cursor: not-allowed; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; }
-        .loading-text { font-size: 14px; color: #fff3cc; display: none; margin-top: 5px; }
-        /* 모든 모달 안의 input 창 placeholder 스타일 수정 */
-.modal input[type="text"]::placeholder {
-    color: #583819;        /* 1. 원하는 색상 코드로 변경 (현재는 옅은 갈색계열 예시) */
-    font-size: 18px;       /* 2. 원하는 글자 크기로 변경 (기본 글자보다 살짝 작게 추천) */
-    font-weight: normal;   /* 글자 두께 (normal 또는 bold) */
+.modal { 
+    display: none; 
+    position: fixed; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    width: 340px; 
+    background-color: #CF9640; 
+    border: 7px solid #AF7032; 
+    border-radius: 25px; 
+    padding: 44px;              /* 기존 외곽 패딩 유지 */
+    box-shadow: 0px 10px 0px rgba(0,0,0,0.2); 
+    z-index: 100; 
+    color: white; 
+    text-align: center; 
+    box-sizing: border-box;     /* 패딩이 늘어나도 모달창 전체 크기가 고정되도록 안전장치 추가 */
 }
 
-/* 브라우저 호환성을 위해 아래 코드도 함께 적어주면 안전합니다 */
-.modal input[type="text"]::-webkit-input-placeholder { color: #583819; font-size: 18px; } /* 크롬, 사파리, 엣지 */
-.modal input[type="text"]::-moz-placeholder { color: #583819; font-size: 18px; }          /* 파이어폭스 */
+/* [추가] 모달 내부의 첫 번째 메인 텍스트 (<p> 태그) 간격 설정 */
+.modal p {
+    margin: 0 0 8px 0;          /* 위=0, 좌우=0, 아래=8px (텍스트 아래에만 약간의 간격을 줌) */
+}
+
+/* [추가] 모달 내부의 두 번째 설명 텍스트 (심기 모달의 작은 글씨 등) 간격 설정 */
+.modal p + p {
+    margin: 0 0 26px 0;         /* 위=0, 좌우=0, 아래=15px (입력창이나 버튼을 더 멀리 밀어냄) */
+}
+
+.modal-close { 
+    position: absolute; 
+    top: 20px; 
+    right: 20px; 
+    cursor: pointer; 
+    font-size: 17px; 
+    color: #985A22; 
+}
+
+.modal input[type="text"] { 
+    width: 260px; 
+    padding: 16px; 
+    margin: 20px 0 35px 0;      /* [수정] 기존 margin: 29px 0; 에서 위(20px)와 아래(35px) 간격을 다르게 분리 */
+    border: 0px solid #8d5e27; 
+    border-radius: 10px; 
+    background-color: #AF7032; 
+    color: #985A22; 
+    font-weight: normal; 
+    text-align: center; 
+    box-sizing: border-box;     /* 패딩 때문에 입력창이 모달 밖으로 삐져나가지 않게 고정 */
+}
+
+.modal button { 
+    background-color: #985A22; 
+    color: white; 
+    border: none; 
+    padding: 10px 16px; 
+    border-radius: 30px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    margin-top: 10px;           /* [추가] 버튼 위쪽에 보너스 여백을 주어 입력창/텍스트와의 간격 확보 */
+}
+
+.modal button:hover { background-color: #5B310A; }
+.modal button:disabled { background-color: #aaaaaa; cursor: not-allowed; }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; }
+.loading-text { font-size: 14px; color: #fff3cc; display: none; margin-top: 5px; }
+
+/* 모든 모달 안의 input 창 placeholder 스타일 수정 */
+.modal input[type="text"]::placeholder {
+    color: #583819;
+    font-size: 18px;
+    font-weight: normal;
+}
+
+/* 브라우저 호환성 세트 유지 */
+.modal input[type="text"]::-webkit-input-placeholder { color: #583819; font-size: 18px; }
+.modal input[type="text"]::-moz-placeholder { color: #583819; font-size: 18px; }
     </style>
 </head>
 <body>
