@@ -150,11 +150,13 @@
 /* [추가] 모달 내부의 첫 번째 메인 텍스트 (<p> 태그) 간격 설정 */
 .modal p {
     margin: 0 0 8px 0;          /* 위=0, 좌우=0, 아래=8px (텍스트 아래에만 약간의 간격을 줌) */
+    word-break: keep-all; /* 단어 단위로 예쁘게 줄바꿈 */
 }
 
 /* [추가] 모달 내부의 두 번째 설명 텍스트 (심기 모달의 작은 글씨 등) 간격 설정 */
 .modal p + p {
-    margin: 15 0 15px 0;         /* 위=0, 좌우=0, 아래=15px (입력창이나 버튼을 더 멀리 밀어냄) */
+    margin: 25 0 0px 0;         /* 위=0, 좌우=0, 아래=15px (입력창이나 버튼을 더 멀리 밀어냄) */
+    word-break: keep-all; /* 단어 단위로 예쁘게 줄바꿈 */
 }
 
 .modal-close { 
@@ -168,8 +170,9 @@
 
 .modal input[type="text"] { 
     width: 260px; 
+    height: 47px; 
     padding: 0px; 
-    margin: 8px 0 8px 0;      /* [수정] 기존 margin: 29px 0; 에서 위(20px)와 아래(35px) 간격을 다르게 분리 */
+    margin: 10px 0 10px 0;      /* [수정] 기존 margin: 29px 0; 에서 위(20px)와 아래(35px) 간격을 다르게 분리 */
     border: 0px solid #8d5e27; 
     border-radius: 10px; 
     background-color: #AF7032; 
