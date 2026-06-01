@@ -17,7 +17,7 @@
             margin: 0; padding: 0;
             width: 100%; height: 100%;
             overflow: hidden; 
-            /* [수정] 파란색 영역 색상 변경 (0168B5 계열로 매칭) */
+            /* [수정] 파란색 영역 색상 (0168B5) */
             background: radial-gradient(circle, #0168B5 0%, #004c85 100%);
             font-family: 'RoundedFixedsys', sans-serif;
             user-select: none;
@@ -31,12 +31,13 @@
         #island {
             position: absolute; 
             width: 4500px; height: 4500px;
-            /* [수정] 화면 배경 녹색 A1B443로 변경 */
+            /* [수정] 화면 배경 녹색 A1B443 변경 */
             background-color: #A1B443; 
             border-radius: 600px; 
-            /* [수정] 상하좌우 모래밭 영역을 유지하며 바다 영역 50px를 확보하기 위해 border를 80px(기존30px+50px)로 확장 및 색상 FFD991 변경 */
+            /* [수정] 베이지색 바깥으로 파란색 50px 영역 고정 유지 보완 */
             border: 80px solid #FFD991;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.4);
+            /* [수정] 베이지색 영역 그림자 삭제 */
+            box-shadow: none;
             cursor: grab;
         }
         #island:active { cursor: grabbing; }
@@ -52,13 +53,12 @@
             z-index: 10; font-size: 14px; line-height: 1.6; pointer-events: none; 
         }
         
-        /* [수정] 안내 문구 한 눈에 12개만 보이고 상하 스크롤이 가능하도록 크기 제한 및 스크롤 추가 */
         #history-list { 
             margin-top: 15px; 
             list-style: none; 
             padding: 0; 
             pointer-events: auto; 
-            max-height: calc(12 * 24px); /* 12개 분량의 높이 제한 */
+            max-height: calc(12 * 24px); 
             overflow-y: auto; 
             text-align: right;
         }
@@ -67,7 +67,6 @@
             line-height: 24px;
             font-weight: bold;
         }
-        /* 스크롤바 커스텀 (디자인을 해치지 않도록 깔끔하게 처리) */
         #history-list::-webkit-scrollbar { width: 6px; }
         #history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
 
@@ -98,7 +97,7 @@
             left: 50%;
             bottom: 50%; 
             transform: translateX(-50%);
-            /* [수정] 이미지 그림자 10px로 블러 수정 */
+            /* [수정] 이미지 그림자 10px 설정 */
             filter: drop-shadow(0 4px 10px rgba(127, 66, 8, 0.4)); 
             border-radius: 0; 
             width: 200px;           
@@ -130,7 +129,6 @@
             z-index: 4;
         } 
 
-        /* [수정] 모달창 가로 너비 400px 및 그림자 15px 반영 */
         .modal { 
             display: none; 
             position: fixed; 
@@ -142,65 +140,74 @@
             border: 7px solid #AF7032; 
             border-radius: 25px; 
             padding: 44px; 
-            box-shadow: 0px 15px 0px rgba(0,0,0,0.2); 
+            /* [수정] 모달창 그림자 블러 영역을 0px로 만들어 완전히 제거 */
+            box-shadow: 0px 15px 0px 0px rgba(0,0,0,0.2); 
             z-index: 100; 
             color: white; 
             text-align: center; 
             box-sizing: border-box;
         }
 
-        /* [수정] 모달창 내 모든 요소 둥근모꼴 서체 강제 통일 */
+        /* [수정] 버튼, 입력창 속 텍스트 및 placeholder까지 모두 둥근모꼴 서체로 완전 고정 강제화 */
+        .modal,
         .modal input, 
         .modal button,
         .modal label,
         .modal span,
         .modal p {
-            font-family: 'RoundedFixedsys', inherit !important;
+            font-family: 'RoundedFixedsys', sans-serif !important;
         }
 
-        /* [수정] 모달 메인 텍스트 크기 18px, 줄간격 12px 설정 */
+        /* [수정] 모달 메인 텍스트 줄간격 25px 설정 */
         .modal p.main-text {
             font-weight: normal;         
             font-size: 18px;
-            line-height: 12px;           
+            line-height: 25px;           
             margin: 0;                   
             word-break: keep-all;        
         }
 
-        /* [수정] 모달 서브 텍스트 크기 14px, 줄간격 8px 설정 */
+        /* [수정] 모달 서브 텍스트 줄간격 18px 설정 */
         .modal p.sub-text {
             font-weight: normal;         
             font-size: 14px; 
             color: #fcecd2;
-            line-height: 8px;            
+            line-height: 18px;            
             margin: 0;
             word-break: keep-all;
         }
 
-        /* [수정] 나가기 버튼 크기 17px 고정 */
+        /* [수정] 닫기 버튼 Vector.png 이미지로 교체 및 크기 17px 설정 */
         .modal-close { 
             position: absolute; 
             top: 20px; 
             right: 20px; 
             cursor: pointer; 
-            font-size: 17px; 
-            color: #985A22; 
+            width: 17px;
+            height: 17px;
+            background-image: url('Vector.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            text-indent: -9999px; /* 기존 고정문자 '×' 투명화 처리 */
+            overflow: hidden;
         }
 
-        /* [수정] 입력창 가로 너비 260px 고정 및 수치 정렬 */
+        /* [수정] 입력창 가로 너비 260px, 글자 크기 18px, 흰색(#ffffff) 설정 */
         .modal input[type="text"] { 
             width: 260px; 
             padding: 16px; 
             border: 0px solid #8d5e27; 
             border-radius: 10px; 
             background-color: #AF7032; 
-            color: #985A22; 
+            color: #ffffff; 
+            font-size: 18px;
             font-weight: normal;         
             text-align: center; 
             box-sizing: border-box; 
         }
 
-        /* [수정] 완료/심기/수확하기 등 일반 버튼 세팅 (텍스트와 버튼 간격 25px 마진 적용) */
+        /* [수정] 버튼과 텍스트 간격(메인/서브 구분 없이) 최소 17px 확보 마진 */
         .modal button.action-btn { 
             background-color: #985A22; 
             min-width: 140px;            
@@ -213,18 +220,18 @@
             border-radius: 30px; 
             cursor: pointer; 
             font-weight: normal;         
-            margin-top: 25px; 
+            margin-top: 17px; 
         }
         .modal button.action-btn:hover { background-color: #5B310A; }
         .modal button.action-btn:disabled { background-color: #aaaaaa; cursor: not-allowed; }
 
-        /* [수정] 수확 모달의 정밀 수평 나열 구조 레이아웃 정의 */
+        /* [수정] 수확 모달의 가로 배치 정렬 정의 (중앙 정렬 해제 및 지정 수치 마진 반영) */
         .harvest-input-row {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: flex-start; /* 중앙 정렬 해제 */
             margin: 20px 0 0 0;
-            padding-left: 60px; /* 입력창과 모달창 왼쪽 간격 60px */
+            padding-left: 60px; /* 입력창과 모달창의 왼쪽 간격 60px */
         }
         .harvest-input-row span.yield-text {
             font-size: 18px;
@@ -233,14 +240,14 @@
         }
 
         #input-keyword {
-            margin-top: 20px;
+            margin-top: 17px;
         }
 
         #input-file {
             display: none;
         }
 
-        /* 파일 선택 라벨 버튼 디자인 (기존 스타일 및 텍스트 간격 25px 마진 적용) */
+        /* 파일 선택 라벨 버튼 디자인 (텍스트와의 간격 반영 마진 조정) */
         .file-upload-label {
             display: inline-block;
             background-color: #AF7032; 
@@ -250,7 +257,7 @@
             cursor: pointer;
             font-weight: normal;         
             font-size: 14px;
-            margin-top: 25px;      
+            margin-top: 17px;      
             width: 260px;               
             box-sizing: border-box;
             transition: background-color 0.2s;
@@ -269,6 +276,7 @@
             font-weight: normal;         
         }
 
+        /* 입력창 placeholder 기본 스타일 정합 유지 */
         .modal input[type="text"]::placeholder { color: #583819; font-size: 18px; font-weight: normal; }
         .modal input[type="text"]::-webkit-input-placeholder { color: #583819; font-size: 18px; }
         .modal input[type="text"]::-moz-placeholder { color: #583819; font-size: 18px; }
@@ -309,14 +317,14 @@
 
     <div class="modal" id="modal-harvest">
         <div class="modal-close" onclick="closeAllModals()">×</div>
-        <p class="main-text" style="margin-bottom: 20px;"><span id="harvest-keyword" style="color:#ffffff;"></span> 심은 데</p>
+        <p class="main-text"><span id="harvest-keyword" style="color:#ffffff;"></span> 심은 데</p>
         
         <div class="harvest-input-row">
             <input type="text" id="input-result" placeholder="입력하기" maxlength="10">
             <span class="yield-text">났다!</span>
         </div>
         
-        <p class="sub-text" style="margin-top: 25px;">수확 시 이미지가 저장되고 밭은 초기화됩니다.</p>
+        <p class="sub-text" style="margin-top: 17px;">수확 시 이미지가 저장되고 밭은 초기화됩니다.</p>
         <div class="loading-text" id="harvest-loading">수확 및 문장 기록 중...</div>
         <br><button id="btn-harvest" class="action-btn" onclick="dbHarvestPlot()">수확하기</button>
     </div>
@@ -336,8 +344,6 @@
         
         let activePlotId = null;
         let clickCoord = { x: 0, y: 0 };
-
-        // 문장 로그 보관 배열 (24시간 소멸 체크용 데이터 바인딩)
         let historyData = [];
 
         const closeAllModals = () => {
@@ -401,8 +407,16 @@
             const dragDistance = Math.sqrt(Math.pow(e.screenX - startScreenX, 2) + Math.pow(e.screenY - startScreenY, 2));
             if (dragDistance < 8 && e.target === island) {
                 const rect = island.getBoundingClientRect();
-                clickCoord.x = e.clientX - rect.left;
-                clickCoord.y = e.clientY - rect.top;
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+                
+                /* [수정] 베이지색 테두리 영역(두께 80px 영역) 클릭 시 밭 갈지 못하도록 필터링 조건문 탑재 */
+                if (clickX < 80 || clickX > (4500 - 80) || clickY < 80 || clickY > (4500 - 80)) {
+                    return; // 모래밭 클릭 무시
+                }
+
+                clickCoord.x = clickX;
+                clickCoord.y = clickY;
                 openModal('modal-till');
             }
         });
@@ -434,8 +448,16 @@
             if (dragDistance < 8 && e.target === island) {
                 e.preventDefault(); 
                 const rect = island.getBoundingClientRect();
-                clickCoord.x = touch.clientX - rect.left;
-                clickCoord.y = touch.clientY - rect.top;
+                const clickX = touch.clientX - rect.left;
+                const clickY = touch.clientY - rect.top;
+                
+                /* [수정] 모바일 터치 환경에서도 베이지색 테두리 영역(80px) 클릭 차단 */
+                if (clickX < 80 || clickX > (4500 - 80) || clickY < 80 || clickY > (4500 - 80)) {
+                    return;
+                }
+
+                clickCoord.x = clickX;
+                clickCoord.y = clickY;
                 openModal('modal-till');
             }
         });
@@ -515,15 +537,11 @@
 
                 try {
                     if(!dbClient) throw new Error("No DB");
-                    
                     const { error } = await dbClient.from('plots')
                         .update({ status: 'planted', image_url: base64ImageUrl })
                         .eq('created_at', dbTime);
-                        
                     if(error) console.error("업데이트 에러 로그:", error);
-                } catch(e) { 
-                    console.error("통신 장애:", e); 
-                }
+                } catch(e) { console.error("통신 장애:", e); }
                 closeAllModals();
             }
         }
@@ -542,7 +560,6 @@
             const keyword = container.querySelector('.signpost').innerText;
             const dbTime = container.getAttribute('data-time');
             
-            // 데이터 오브젝트 생성 (실시간 타임스탬프 탑재)
             const logItem = {
                 id: 'log_' + Date.now(),
                 keyword: keyword,
@@ -550,7 +567,6 @@
                 created_at: new Date().toISOString()
             };
 
-            // 로컬에 선반영 및 리스트 동기화
             historyData.unshift(logItem);
             renderHistoryUI();
             
@@ -561,11 +577,11 @@
                 const logText = `🫘 ${keyword} 심은 데 ${resultInput} 났다!`;
                 await dbClient.from('history').insert([{ sentence: logText, keyword: keyword, result: resultInput, created_at: logItem.created_at }]);
                 await dbClient.from('plots').delete().eq('created_at', dbTime);
-            } catch(e) { console.log("로컬 제거 및 보관"); }
+            } catch(e) { console.log("로컬 제거 및 기록"); }
             closeAllModals();
         }
 
-        /* [수정] 일치 여부 색상 변경 및 24시간 필터링을 거쳐 UI를 드로잉하는 렌더링 함수 */
+        /* [수정] 불일치 색상을 요청하신 D16483 코드로 정밀 변경 수정 */
         function renderHistoryUI() {
             const list = document.getElementById('history-list');
             list.innerHTML = '';
@@ -573,28 +589,25 @@
             const now = new Date().getTime();
             const oneDayMs = 24 * 60 * 60 * 1000;
 
-            // 24시간 내 유효한 로그만 필터링
             historyData = historyData.filter(item => {
                 const logTime = new Date(item.created_at).getTime();
                 return (now - logTime) < oneDayMs;
             });
 
-            // 필터링된 유효 리스트 드로잉
             historyData.forEach(item => {
                 const li = document.createElement('li');
                 li.innerText = `🫘 ${item.keyword} 심은 데 ${item.result} 났다!`;
                 
-                // [수정] 일치하면 9BFF7A, 불일치하면 A74F68 색상 지정
                 if (item.keyword === item.result) {
                     li.style.color = '#9BFF7A';
                 } else {
-                    li.style.color = '#A74F68';
+                    /* [수정] 텍스트 불일치 색상 D16483 변경 */
+                    li.style.color = '#D16483';
                 }
                 list.appendChild(li);
             });
         }
 
-        // 실시간 24시간 스케줄러 루프 구동 (1분 주기로 소멸 검사)
         setInterval(renderHistoryUI, 60000);
 
         function renderPlotOnIsland(plot) {
@@ -642,7 +655,6 @@
                 const { data: logs } = await dbClient.from('history').select('*').order('created_at', { ascending: false });
                 if (logs) {
                     historyData = logs.map(log => {
-                        // DB 내 기존 텍스트 파싱 처리 혹은 안전 바인딩
                         const cleanSentence = log.sentence.replace('🫘 ', '').replace('✨ ', '');
                         const match = cleanSentence.match(/(.*) 심은 데 (.*) 났다!/);
                         return {
