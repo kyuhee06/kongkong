@@ -54,7 +54,7 @@
             list-style: none; 
             padding: 0; 
             pointer-events: auto; 
-            max-height: calc(12 * 24px); 
+            max-height: 200px; 
             overflow-y: auto; 
             text-align: right;
         }
@@ -62,6 +62,7 @@
             font-size: 14px;
             line-height: 24px;
             font-weight: bold;
+            color: #9BFF7A;
         }
         #history-list::-webkit-scrollbar { width: 6px; }
         #history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
@@ -356,7 +357,7 @@
         
         let activePlotId = null;
         let clickCoord = { x: 0, y: 0 };
-        let historyData = []; // 초기 버전처럼 문자열 전체 배열로 관리합니다.
+        let historyData = [];
 
         const closeAllModals = () => {
             overlay.style.display = 'none';
@@ -579,7 +580,7 @@
             }
         }
 
-        // 초기 오리지널 수확 함수 양식으로 완벽히 복원
+        // ✨ 이모지가 들어간 최초 오리지널 dbHarvestPlot 함수
         async function dbHarvestPlot() {
             const resultInput = document.getElementById('input-result').value.trim();
             if (!resultInput) return alert('실제 무엇이 열렸는지 작성해 주세요!');
@@ -608,20 +609,15 @@
                 }
             }
             
-            // 초기 버전과 똑같이 순수 통문장(sentence) 형태로 기록 처리
-            const logText = `🫘 ${keyword} 심은 데 ${resultInput} 났다!`;
-            
-            historyData.unshift({
-                sentence: logText,
-                created_at: new Date().toISOString()
-            });
+            // 최초 원본 그대로 ✨ 이모지 형식 통문장 저장
+            const logText = `✨ ${keyword} 심은 데 ${resultInput} 났다!`;
+            historyData.unshift(logText);
             renderHistoryUI();
             
             container.remove();
 
             try {
                 if(!dbClient) throw new Error("No DB");
-                // 테이블에 존재하지 않는 컬럼(keyword, result)을 전부 배제하고 초기 오리지널 양식인 sentence 하나만 타겟팅합니다.
                 await dbClient.from('history').insert([{ sentence: logText }]);
                 await dbClient.from('plots').delete().eq('created_at', dbTime);
             } catch(e) { console.log("로컬 제거 및 기록"); }
@@ -631,28 +627,9 @@
         function renderHistoryUI() {
             const list = document.getElementById('history-list');
             list.innerHTML = '';
-
-            // 최신 글 12개 슬라이싱 보장
-            const latestLogs = historyData.slice(0, 12);
-
-            latestLogs.forEach(item => {
+            historyData.forEach(text => {
                 const li = document.createElement('li');
-                li.innerText = item.sentence;
-                
-                // 단순 글자 비교 기반으로 텍스트 하이라이트 분기 처리
-                const clean = item.sentence.replace('🫘 ', '');
-                const parts = clean.split(' 심은 데 ');
-                if(parts.length === 2) {
-                    const kw = parts[0].trim();
-                    const rs = parts[1].replace(' 났다!', '').trim();
-                    if(kw === rs) {
-                        li.style.color = '#9BFF7A';
-                    } else {
-                        li.style.color = '#D16483';
-                    }
-                } else {
-                    li.style.color = '#9BFF7A';
-                }
+                li.innerText = text;
                 list.appendChild(li);
             });
         }
@@ -693,17 +670,16 @@
             el.appendChild(sign);
         }
 
-        // 오리지널 데이터 바인딩 로직 복구
+        // 최초 원본 데이터 바인딩 init 함수
         async function init() {
             try {
                 if(!dbClient) return;
                 const { data: plots } = await dbClient.from('plots').select('*');
                 if (plots) plots.forEach(renderPlotOnIsland);
                 
-                // 오리지널 정렬 명령어 그대로 적용
-                const { data: logs } = await dbClient.from('history').select('*').order('created_at', { ascending: false });
+                const { data: logs } = await dbClient.from('history').select('*');
                 if (logs) {
-                    historyData = logs;
+                    historyData = logs.map(log => log.sentence);
                     renderHistoryUI();
                 }
                 
@@ -719,8 +695,8 @@
                 }).subscribe();
                 
                 dbClient.channel('public:history').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'history' }, payload => {
-                    if (!historyData.some(h => h.created_at === payload.new.created_at)) {
-                        historyData.unshift(payload.new);
+                    if (!historyData.includes(payload.new.sentence)) {
+                        historyData.unshift(payload.new.sentence);
                         renderHistoryUI();
                     }
                 }).subscribe();
