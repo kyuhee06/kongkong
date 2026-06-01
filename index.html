@@ -17,7 +17,6 @@
             margin: 0; padding: 0;
             width: 100%; height: 100%;
             overflow: hidden; 
-            /* [수정] 파란색 영역 색상 (0168B5) */
             background: radial-gradient(circle, #0168B5 0%, #004c85 100%);
             font-family: 'RoundedFixedsys', sans-serif;
             user-select: none;
@@ -31,12 +30,10 @@
         #island {
             position: absolute; 
             width: 4500px; height: 4500px;
-            /* [수정] 화면 배경 녹색 A1B443 변경 */
             background-color: #A1B443; 
             border-radius: 600px; 
-            /* [수정] 베이지색 바깥으로 파란색 50px 영역 고정 유지 보완 */
+            /* 상하좌우 모래밭 영역을 유지하며 바다 영역 50px를 표현하기 위한 테두리 설정 */
             border: 80px solid #FFD991;
-            /* [수정] 베이지색 영역 그림자 삭제 */
             box-shadow: none;
             cursor: grab;
         }
@@ -97,8 +94,8 @@
             left: 50%;
             bottom: 50%; 
             transform: translateX(-50%);
-            /* [수정] 이미지 그림자 10px 설정 */
-            filter: drop-shadow(0 4px 10px rgba(127, 66, 8, 0.4)); 
+            /* [수정] 이미지 그림자 블러(Blur) 영역을 0px로 만들어 완전히 제거 */
+            filter: drop-shadow(0px 8px 0px rgba(71, 37, 4, 0.5)); 
             border-radius: 0; 
             width: 200px;           
             height: 200px;           
@@ -140,7 +137,6 @@
             border: 7px solid #AF7032; 
             border-radius: 25px; 
             padding: 44px; 
-            /* [수정] 모달창 그림자 블러 영역을 0px로 만들어 완전히 제거 */
             box-shadow: 0px 15px 0px 0px rgba(0,0,0,0.2); 
             z-index: 100; 
             color: white; 
@@ -148,7 +144,6 @@
             box-sizing: border-box;
         }
 
-        /* [수정] 버튼, 입력창 속 텍스트 및 placeholder까지 모두 둥근모꼴 서체로 완전 고정 강제화 */
         .modal,
         .modal input, 
         .modal button,
@@ -158,7 +153,6 @@
             font-family: 'RoundedFixedsys', sans-serif !important;
         }
 
-        /* [수정] 모달 메인 텍스트 줄간격 25px 설정 */
         .modal p.main-text {
             font-weight: normal;         
             font-size: 18px;
@@ -167,7 +161,6 @@
             word-break: keep-all;        
         }
 
-        /* [수정] 모달 서브 텍스트 줄간격 18px 설정 */
         .modal p.sub-text {
             font-weight: normal;         
             font-size: 14px; 
@@ -177,7 +170,6 @@
             word-break: keep-all;
         }
 
-        /* [수정] 닫기 버튼 Vector.png 이미지로 교체 및 크기 17px 설정 */
         .modal-close { 
             position: absolute; 
             top: 20px; 
@@ -189,13 +181,12 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            text-indent: -9999px; /* 기존 고정문자 '×' 투명화 처리 */
+            text-indent: -9999px; 
             overflow: hidden;
         }
 
-        /* [수정] 입력창 가로 너비 260px, 글자 크기 18px, 흰색(#ffffff) 설정 */
         .modal input[type="text"] { 
-            width: 260px; 
+            width: 200px; /* 패딩 레이아웃 확보를 위해 기본 너비 유연성 조정 */
             padding: 16px; 
             border: 0px solid #8d5e27; 
             border-radius: 10px; 
@@ -207,7 +198,7 @@
             box-sizing: border-box; 
         }
 
-        /* [수정] 버튼과 텍스트 간격(메인/서브 구분 없이) 최소 17px 확보 마진 */
+        /* [수정] 하단 버튼의 위쪽 간격을 30px로 변경 */
         .modal button.action-btn { 
             background-color: #985A22; 
             min-width: 140px;            
@@ -220,34 +211,42 @@
             border-radius: 30px; 
             cursor: pointer; 
             font-weight: normal;         
-            margin-top: 17px; 
+            margin-top: 30px; 
         }
         .modal button.action-btn:hover { background-color: #5B310A; }
         .modal button.action-btn:disabled { background-color: #aaaaaa; cursor: not-allowed; }
 
-        /* [수정] 수확 모달의 가로 배치 정렬 정의 (중앙 정렬 해제 및 지정 수치 마진 반영) */
+        /* [수정] 모달창과 입력창 왼쪽 패딩 60px, 우측 '났다!'와 모달창 오른쪽 패딩 균형 배치 */
         .harvest-input-row {
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* 중앙 정렬 해제 */
+            justify-content: flex-start; 
             margin: 20px 0 0 0;
-            padding-left: 60px; /* 입력창과 모달창의 왼쪽 간격 60px */
+            padding-left: 60px;  /* 모달창과 입력창의 왼쪽 패딩 60px */
+            padding-right: 60px; /* '났다!' 텍스트와 모달창 우측 사이 패딩 확보 */
+            box-sizing: border-box;
+            width: 100%;
+        }
+        /* 입력창이 남은 공간을 차지하도록 유연하게 지정 */
+        .harvest-input-row input[type="text"] {
+            flex: 1;
+            width: 100%;
         }
         .harvest-input-row span.yield-text {
             font-size: 18px;
             color: white;
             margin-left: 27px; /* 입력창과 '났다!' 사이 간격 27px */
+            white-space: nowrap;
         }
 
         #input-keyword {
-            margin-top: 17px;
+            margin-top: 30px; /* 버튼 간격 규격에 맞춰 통일감 부여 */
         }
 
         #input-file {
             display: none;
         }
 
-        /* 파일 선택 라벨 버튼 디자인 (텍스트와의 간격 반영 마진 조정) */
         .file-upload-label {
             display: inline-block;
             background-color: #AF7032; 
@@ -257,7 +256,7 @@
             cursor: pointer;
             font-weight: normal;         
             font-size: 14px;
-            margin-top: 17px;      
+            margin-top: 30px;      
             width: 260px;               
             box-sizing: border-box;
             transition: background-color 0.2s;
@@ -276,7 +275,6 @@
             font-weight: normal;         
         }
 
-        /* 입력창 placeholder 기본 스타일 정합 유지 */
         .modal input[type="text"]::placeholder { color: #583819; font-size: 18px; font-weight: normal; }
         .modal input[type="text"]::-webkit-input-placeholder { color: #583819; font-size: 18px; }
         .modal input[type="text"]::-moz-placeholder { color: #583819; font-size: 18px; }
@@ -324,7 +322,7 @@
             <span class="yield-text">났다!</span>
         </div>
         
-        <p class="sub-text" style="margin-top: 17px;">수확 시 이미지가 저장되고 밭은 초기화됩니다.</p>
+        <p class="sub-text" style="margin-top: 30px;">수확 시 이미지가 저장되고 밭은 초기화됩니다.</p>
         <div class="loading-text" id="harvest-loading">수확 및 문장 기록 중...</div>
         <br><button id="btn-harvest" class="action-btn" onclick="dbHarvestPlot()">수확하기</button>
     </div>
@@ -410,9 +408,9 @@
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
                 
-                /* [수정] 베이지색 테두리 영역(두께 80px 영역) 클릭 시 밭 갈지 못하도록 필터링 조건문 탑재 */
+                // 베이지색 모래밭 영역(테두리 80px 구간) 클릭 시 밭 갈기 생성 차단
                 if (clickX < 80 || clickX > (4500 - 80) || clickY < 80 || clickY > (4500 - 80)) {
-                    return; // 모래밭 클릭 무시
+                    return; 
                 }
 
                 clickCoord.x = clickX;
@@ -451,7 +449,7 @@
                 const clickX = touch.clientX - rect.left;
                 const clickY = touch.clientY - rect.top;
                 
-                /* [수정] 모바일 터치 환경에서도 베이지색 테두리 영역(80px) 클릭 차단 */
+                // 모바일 터치 환경 모래밭 영역 생성 차단
                 if (clickX < 80 || clickX > (4500 - 80) || clickY < 80 || clickY > (4500 - 80)) {
                     return;
                 }
@@ -546,6 +544,7 @@
             }
         }
 
+        /* [수정] 사진 수확하기를 눌렀을 때 기기(디바이스) 내부에 이미지가 파일로 저장되도록 다운로드 스크립트 결합 */
         async function dbHarvestPlot() {
             const resultInput = document.getElementById('input-result').value.trim();
             if (!resultInput) return alert('실제 무엇이 열렸는지 작성해 주세요!');
@@ -559,6 +558,21 @@
             
             const keyword = container.querySelector('.signpost').innerText;
             const dbTime = container.getAttribute('data-time');
+            
+            // [추가] 디바이스 다운로드 연동 처리
+            const attachedImg = container.querySelector('.planted-image');
+            if (attachedImg && attachedImg.src) {
+                try {
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = attachedImg.src;
+                    downloadLink.download = `수확_${keyword}_${resultInput}.jpg`;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                } catch (err) {
+                    console.error("디바이스 이미지 저장 중 오류:", err);
+                }
+            }
             
             const logItem = {
                 id: 'log_' + Date.now(),
@@ -581,7 +595,6 @@
             closeAllModals();
         }
 
-        /* [수정] 불일치 색상을 요청하신 D16483 코드로 정밀 변경 수정 */
         function renderHistoryUI() {
             const list = document.getElementById('history-list');
             list.innerHTML = '';
@@ -601,7 +614,6 @@
                 if (item.keyword === item.result) {
                     li.style.color = '#9BFF7A';
                 } else {
-                    /* [수정] 텍스트 불일치 색상 D16483 변경 */
                     li.style.color = '#D16483';
                 }
                 list.appendChild(li);
