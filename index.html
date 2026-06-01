@@ -84,8 +84,9 @@
            left: 50%;
            transform: translateX(-50%);
     
-    /* 세로 정렬: 이미지의 아래끝선이 밭의 중앙에 위치하도록 설정 */
-           bottom: 50%; /* 이미지 아래끝선이 부모 중앙에 딱 걸림 */
+    /* 세로 정렬: 이미지의 아래끝선이 밭의 중앙에 위치하도록 설정 */bottom: 0;               /* 이미지를 부모(밭)의 맨 아래 바닥에 붙입니다 */
+    transform-origin: bottom; /* transform 기준점을 이미지 아래로 고정 (중요) */
+    transform: translateX(-50%) translateY(50%);
     
     /* 이미지 그림자: 비행기 모양대로, 아래로만, 반투명 */
     /* drop-shadow(offset-x offset-y blur-radius color) */
@@ -95,8 +96,8 @@
             border-radius: 0; 
     
     /* 이미지 크기 조절 (선택 사항, 밭 크기에 따라 필요할 수 있음) */
-            max-width: 80%; /* 밭보다 크지 않게 조절 */
-            height: auto;
+            max-width: 210px; /* 밭보다 크지 않게 조절 */
+            height: 210px;
     
     /* 이미지가 밭 이미지 위로 얹히도록 z-index 설정 */
            z-index: 1; 
