@@ -149,13 +149,13 @@
 
 /* [추가] 모달 내부의 첫 번째 메인 텍스트 (<p> 태그) 간격 설정 */
 .modal p {
-    margin: 0 0 8px 0;          /* 위=0, 좌우=0, 아래=8px (텍스트 아래에만 약간의 간격을 줌) */
+    margin: 0 0 20px 0;          /* 위=0, 좌우=0, 아래=8px (텍스트 아래에만 약간의 간격을 줌) */
     word-break: keep-all; /* 단어 단위로 예쁘게 줄바꿈 */
 }
 
 /* [추가] 모달 내부의 두 번째 설명 텍스트 (심기 모달의 작은 글씨 등) 간격 설정 */
 .modal p + p {
-    margin: 25 0 0px 0;         /* 위=0, 좌우=0, 아래=15px (입력창이나 버튼을 더 멀리 밀어냄) */
+    margin: 15 0 0px 0;         /* 위=0, 좌우=0, 아래=15px (입력창이나 버튼을 더 멀리 밀어냄) */
     word-break: keep-all; /* 단어 단위로 예쁘게 줄바꿈 */
 }
 
@@ -234,13 +234,16 @@
         <input type="text" id="input-keyword" placeholder="예: 비행기, 고양이" maxlength="10">
         <br><button id="btn-till" onclick="dbCreatePlot()">완료</button>
     </div>
-
     <div class="modal" id="modal-plant">
         <div class="modal-close" onclick="closeAllModals()">×</div>
-        <p style="margin:0; font-weight:normal; font-size:16px;"><span id="target-keyword" style="color:#ffffff;"></span>를 심으시겠습니까?</p>
-        <input type="file" id="input-file" accept="image/*" style="margin: 12px 0; color: #ECD5B3;">
-        <div class="loading-text" id="plant-loading">이미지 압축 및 심는 중...</div>
-        <br><button id="btn-plant" onclick="dbPlantImage()">사진 심기</button>
+        <p style="margin:0; font-weight:bold; font-size:16px;"><span id="target-keyword" style="color:#ffffff;"></span>를 심으시겠습니까?</p>
+        <label for="input-file" class="file-upload-label">
+        이미지 파일 선택하기
+        </label>
+        <input type="file" id="input-file" accept="image/*">
+    
+        <div class="loading-text" id="plant-loading">사진을 심는 중...</div>
+        <br><button id="btn-plant" onclick="dbPlantImage()">심기</button>
     </div>
 
     <div class="modal" id="modal-harvest">
