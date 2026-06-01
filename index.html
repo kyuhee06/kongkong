@@ -181,7 +181,10 @@
 
 .modal button { 
     background-color: #985A22; 
+    width: 140;     
+    height: 43px;   
     color: white; 
+    font-size: 20px; 
     border: none; 
     padding: 10px 16px; 
     border-radius: 30px; 
@@ -240,7 +243,7 @@
     <div class="modal" id="modal-harvest">
         <div class="modal-close" onclick="closeAllModals()">×</div>
         <p style="margin:0; font-weight:bold; font-size:16px;"><span id="harvest-keyword" style="color:#ffffff;"></span> 심은 데</p>
-        <input type="text" id="input-result" placeholder="무엇이 났나요?" maxlength="10"> <span style="font-weight:normal; font-size:16px;">났다!</span>
+        <input type="text" id="input-result" placeholder="입력하기" maxlength="10"> <span style="font-weight:normal; font-size:16px;">났다!</span>
         <p style="font-size:12px; color:#ECD5B3; margin-top:5px;">수확 시 이미지가 저장되고 밭은 초기화됩니다.</p>
         <div class="loading-text" id="harvest-loading">수확 및 문장 기록 중...</div>
         <br><button id="btn-harvest" onclick="dbHarvestPlot()">수확하기</button>
