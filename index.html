@@ -129,14 +129,24 @@
             z-index: 4; /* 푯말이 이미지에 가려지지 않게 정돈 */
         } 
 
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 390px; background-color: #CF9640; border: 7px solid #AF7032; border-radius: 25px; padding: 44px; box-shadow: 0px 10px 0px rgba(0,0,0,0.2); z-index: 100; color: white; text-align: center; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 390px; background-color: #CF9640; border: 7px solid #AF7032; border-radius: 25px; padding: 26px; box-shadow: 0px 10px 0px rgba(0,0,0,0.2); z-index: 100; color: white; text-align: center; }
         .modal-close { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 17px; color: #985A22; }
         .modal input[type="text"] { width: 260px; padding: 16px; margin: 29px 0; border: 0px solid #8d5e27; border-radius: 10px; background-color: #AF7032; color: #985A22; font-weight: normal; text-align: center; }
         .modal button { background-color: #985A22; color: white; border: none; padding: 10px 16px; border-radius: 30px; cursor: pointer; font-weight: bold; }
         .modal button:hover { background-color: #5B310A; }
         .modal button:disabled { background-color: #aaaaaa; cursor: not-allowed; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; }
-        .loading-text { font-size: 12px; color: #fff3cc; display: none; margin-top: 5px; }
+        .loading-text { font-size: 14px; color: #fff3cc; display: none; margin-top: 5px; }
+        /* 모든 모달 안의 input 창 placeholder 스타일 수정 */
+.modal input[type="text"]::placeholder {
+    color: #583819;        /* 1. 원하는 색상 코드로 변경 (현재는 옅은 갈색계열 예시) */
+    font-size: 18px;       /* 2. 원하는 글자 크기로 변경 (기본 글자보다 살짝 작게 추천) */
+    font-weight: normal;   /* 글자 두께 (normal 또는 bold) */
+}
+
+/* 브라우저 호환성을 위해 아래 코드도 함께 적어주면 안전합니다 */
+.modal input[type="text"]::-webkit-input-placeholder { color: #583819; font-size: 18px; } /* 크롬, 사파리, 엣지 */
+.modal input[type="text"]::-moz-placeholder { color: #583819; font-size: 18px; }          /* 파이어폭스 */
     </style>
 </head>
 <body>
