@@ -622,7 +622,16 @@
             try {
                 if(!dbClient) throw new Error("No DB");
                 const logText = `🫘 ${keyword} 심은 데 ${resultInput} 났다!`;
-                await dbClient.from('history').insert([{ sentence: logText, keyword: keyword, result: resultInput, created_at: logItem.created_at }]);
+                
+                // [진짜 최종 해결책] Supabase 테이블 구조가 sentence 기반이든 keyword/result 분리 기반이든 
+                // 둘 다 정상 작동하도록 모든 데이터를 안전하게 전부 밀어넣어 버립니다. (정렬 파싱 붕괴 원천 방지)
+                await dbClient.from('history').insert([{ 
+                    sentence: logText, 
+                    keyword: keyword, 
+                    result: resultInput, 
+                    created_at: logItem.created_at 
+                }]);
+                
                 await dbClient.from('plots').delete().eq('created_at', dbTime);
             } catch(e) { console.log("로컬 제거 및 기록"); }
             closeAllModals();
@@ -632,12 +641,11 @@
             const list = document.getElementById('history-list');
             list.innerHTML = '';
 
-            // [핵심 변경] 새로고침 및 실시간 꼬임 방지를 위해 타임스탬프 밀리초 단위로 강력하고 명확하게 내림차순 정렬을 수행합니다.
+            // 밀리초 기준 완전 강제 정렬 보장
             historyData.sort((a, b) => {
                 return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
             });
 
-            // 정렬 완료된 전체 데이터 중에서 오직 최신 12개만 슬라이싱하여 렌더링
             const latestLogs = historyData.slice(0, 12);
 
             latestLogs.forEach(item => {
@@ -695,16 +703,26 @@
                 const { data: plots } = await dbClient.from('plots').select('*');
                 if (plots) plots.forEach(renderPlotOnIsland);
                 
-                // DB에서 데이터를 긁어옵니다. (DB 순서가 꼬여있어도 하단 스크립트 정렬 로직이 완벽 복구합니다)
                 const { data: logs } = await dbClient.from('history').select('*');
                 if (logs) {
                     historyData = logs.map(log => {
-                        const cleanSentence = log.sentence.replace('🫘 ', '').replace('✨ ', '');
-                        const match = cleanSentence.match(/(.*) 심은 데 (.*) 났다!/);
+                        // DB에 sentence가 비어있거나 깨졌을 때를 대비해 keyword/result 백업값 추출 추가
+                        let realKeyword = log.keyword;
+                        let realResult = log.result;
+
+                        if (log.sentence) {
+                            const cleanSentence = log.sentence.replace('🫘 ', '').replace('✨ ', '');
+                            const match = cleanSentence.match(/(.*) 심은 데 (.*) 났다!/);
+                            if (match) {
+                                if (!realKeyword) realKeyword = match[1].trim();
+                                if (!realResult) realResult = match[2].trim();
+                            }
+                        }
+                        
                         return {
                             id: 'log_' + new Date(log.created_at).getTime(),
-                            keyword: log.keyword || (match ? match[1].trim() : '공통'),
-                            result: log.result || (match ? match[2].trim() : '알수없음'),
+                            keyword: realKeyword || '공통',
+                            result: realResult || '알수없음',
                             created_at: log.created_at
                         };
                     });
@@ -723,16 +741,23 @@
                 }).subscribe();
                 
                 dbClient.channel('public:history').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'history' }, payload => {
-                    const cleanSentence = payload.new.sentence.replace('🫘 ', '').replace('✨ ', '');
-                    const match = cleanSentence.match(/(.*) 심은 데 (.*) 났다!/);
-                    const realKeyword = payload.new.keyword || (match ? match[1].trim() : '공통');
-                    const realResult = payload.new.result || (match ? match[2].trim() : '알수없음');
+                    let realKeyword = payload.new.keyword;
+                    let realResult = payload.new.result;
+
+                    if (payload.new.sentence) {
+                        const cleanSentence = payload.new.sentence.replace('🫘 ', '').replace('✨ ', '');
+                        const match = cleanSentence.match(/(.*) 심은 데 (.*) 났다!/);
+                        if (match) {
+                            if (!realKeyword) realKeyword = match[1].trim();
+                            if (!realResult) realResult = match[2].trim();
+                        }
+                    }
 
                     if (!historyData.some(h => h.created_at === payload.new.created_at)) {
                         historyData.unshift({
                             id: 'log_' + new Date(payload.new.created_at).getTime(),
-                            keyword: realKeyword,
-                            result: realResult,
+                            keyword: realKeyword || '공통',
+                            result: realResult || '알수없음',
                             created_at: payload.new.created_at
                         });
                         renderHistoryUI();
