@@ -32,7 +32,6 @@
             width: 4500px; height: 4500px;
             background-color: #A1B443; 
             border-radius: 600px; 
-            /* 상하좌우 모래밭 영역을 유지하며 바다 영역 50px를 표현하기 위한 테두리 설정 */
             border: 80px solid #FFD991;
             box-shadow: none;
             cursor: grab;
@@ -94,8 +93,7 @@
             left: 50%;
             bottom: 50%; 
             transform: translateX(-50%);
-            /* [수정] 이미지 그림자 블러(Blur) 영역을 0px로 만들어 완전히 제거 */
-            filter: drop-shadow(0px 8px 0px rgba(71, 37, 4, 0.5)); 
+            filter: drop-shadow(0px 7px 0px rgba(127, 66, 8, 0.4)); 
             border-radius: 0; 
             width: 200px;           
             height: 200px;           
@@ -170,6 +168,12 @@
             word-break: keep-all;
         }
 
+        /* 수확 모달 내부 안내문구 하단 마진 제거하여 간격 격리 */
+        #modal-harvest p.sub-text {
+            margin-top: 30px;
+            margin-bottom: 0px !important; 
+        }
+
         .modal-close { 
             position: absolute; 
             top: 20px; 
@@ -186,7 +190,7 @@
         }
 
         .modal input[type="text"] { 
-            width: 200px; /* 패딩 레이아웃 확보를 위해 기본 너비 유연성 조정 */
+            width: 200px; 
             padding: 16px; 
             border: 0px solid #8d5e27; 
             border-radius: 10px; 
@@ -198,7 +202,6 @@
             box-sizing: border-box; 
         }
 
-        /* [수정] 하단 버튼의 위쪽 간격을 30px로 변경 */
         .modal button.action-btn { 
             background-color: #985A22; 
             min-width: 140px;            
@@ -216,18 +219,21 @@
         .modal button.action-btn:hover { background-color: #5B310A; }
         .modal button.action-btn:disabled { background-color: #aaaaaa; cursor: not-allowed; }
 
-        /* [수정] 모달창과 입력창 왼쪽 패딩 60px, 우측 '났다!'와 모달창 오른쪽 패딩 균형 배치 */
+        /* [수정] 수확하기 버튼 전용 마진 설정 - 화면상 30px 절대 고정 */
+        #btn-harvest {
+            margin-top: 30px !important;
+        }
+
         .harvest-input-row {
             display: flex;
             align-items: center;
             justify-content: flex-start; 
             margin: 20px 0 0 0;
-            padding-left: 60px;  /* 모달창과 입력창의 왼쪽 패딩 60px */
-            padding-right: 60px; /* '났다!' 텍스트와 모달창 우측 사이 패딩 확보 */
+            padding-left: 60px;  
+            padding-right: 60px; 
             box-sizing: border-box;
             width: 100%;
         }
-        /* 입력창이 남은 공간을 차지하도록 유연하게 지정 */
         .harvest-input-row input[type="text"] {
             flex: 1;
             width: 100%;
@@ -235,12 +241,12 @@
         .harvest-input-row span.yield-text {
             font-size: 18px;
             color: white;
-            margin-left: 27px; /* 입력창과 '났다!' 사이 간격 27px */
+            margin-left: 27px; 
             white-space: nowrap;
         }
 
         #input-keyword {
-            margin-top: 30px; /* 버튼 간격 규격에 맞춰 통일감 부여 */
+            margin-top: 30px; 
         }
 
         #input-file {
@@ -265,6 +271,15 @@
             background-color: #985A22;  
         }
 
+        /* [수정] 이미지 파일 선택 완료 시 적용될 스타일 클래스 */
+        .file-upload-label.selected {
+            background-color: #5B310B !important;
+            cursor: default;
+        }
+        .file-upload-label.selected:hover {
+            background-color: #5B310B !important;
+        }
+
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; }
 
         .loading-text { 
@@ -284,8 +299,8 @@
 
     <div id="ui-header">콩 심은 데 🫘 난다</div>
     <div id="ui-instruction">
-        마우스로 드래그하여 섬을 둘러보세요.<br>
-        빈 땅을 클릭해 밭을 일구고 사진을 심어보세요!
+        원하는 곳을 클릭하고 텃밭을 만들어 보세요.<br>
+        비어있는 텃밭에 사진을 심어보세요.
         <ul id="history-list"></ul>
     </div>
 
@@ -305,7 +320,7 @@
     <div class="modal" id="modal-plant">
         <div class="modal-close" onclick="closeAllModals()">×</div>
         <p class="main-text"><span id="target-keyword" style="color:#ffffff;"></span>를 심으시겠습니까?</p>
-        <label for="input-file" class="file-upload-label">
+        <label for="input-file" class="file-upload-label" id="label-file">
         이미지 파일 선택하기
         </label>
         <input type="file" id="input-file" accept="image/*">
@@ -322,7 +337,7 @@
             <span class="yield-text">났다!</span>
         </div>
         
-        <p class="sub-text" style="margin-top: 30px;">수확 시 이미지가 저장되고 밭은 초기화됩니다.</p>
+        <p class="sub-text">수확 시 이미지가 저장되고 밭은 초기화됩니다.</p>
         <div class="loading-text" id="harvest-loading">수확 및 문장 기록 중...</div>
         <br><button id="btn-harvest" class="action-btn" onclick="dbHarvestPlot()">수확하기</button>
     </div>
@@ -356,6 +371,28 @@
             document.getElementById('input-keyword').value = '';
             document.getElementById('input-file').value = '';
             document.getElementById('input-result').value = '';
+
+            // 파일 레이블 스타일 클래스 리셋
+            const fileLabel = document.getElementById('label-file');
+            if (fileLabel) {
+                fileLabel.classList.remove('selected');
+                fileLabel.innerText = "이미지 파일 선택하기";
+            }
+        }
+
+        // [수정] 파일 선택 시 라벨 배경색 고정 감지 기능 등록
+        const fileInputEl = document.getElementById('input-file');
+        const fileLabelEl = document.getElementById('label-file');
+        if (fileInputEl && fileLabelEl) {
+            fileInputEl.addEventListener('change', (e) => {
+                if (fileInputEl.files && fileInputEl.files.length > 0) {
+                    fileLabelEl.classList.add('selected');
+                    fileLabelEl.innerText = "이미지 선택 완료";
+                } else {
+                    fileLabelEl.classList.remove('selected');
+                    fileLabelEl.innerText = "이미지 파일 선택하기";
+                }
+            });
         }
 
         const inputResult = document.getElementById('input-result');
@@ -370,12 +407,16 @@
         let startX, startY;
         let startScreenX = 0, startScreenY = 0;
 
+        // [수정] 섬 크기 외곽으로 파란색 영역이 상하좌우 각 60px씩 추가로 확보되도록 한계 마진 설정
         function updateCamera() {
-            const minX = window.innerWidth - island.offsetWidth;
-            const minY = window.innerHeight - island.offsetHeight;
+            const margin = 60; 
+            const minX = window.innerWidth - island.offsetWidth - margin;
+            const minY = window.innerHeight - island.offsetHeight - margin;
             
-            if (camX > 0) camX = 0; if (camX < minX) camX = minX;
-            if (camY > 0) camY = 0; if (camY < minY) camY = minY;
+            if (camX > margin) camX = margin; 
+            if (camX < minX) camX = minX;
+            if (camY > margin) camY = margin; 
+            if (camY < minY) camY = minY;
             
             island.style.left = camX + 'px';
             island.style.top = camY + 'px';
@@ -408,7 +449,6 @@
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
                 
-                // 베이지색 모래밭 영역(테두리 80px 구간) 클릭 시 밭 갈기 생성 차단
                 if (clickX < 80 || clickX > (4500 - 80) || clickY < 80 || clickY > (4500 - 80)) {
                     return; 
                 }
@@ -449,7 +489,6 @@
                 const clickX = touch.clientX - rect.left;
                 const clickY = touch.clientY - rect.top;
                 
-                // 모바일 터치 환경 모래밭 영역 생성 차단
                 if (clickX < 80 || clickX > (4500 - 80) || clickY < 80 || clickY > (4500 - 80)) {
                     return;
                 }
@@ -544,7 +583,6 @@
             }
         }
 
-        /* [수정] 사진 수확하기를 눌렀을 때 기기(디바이스) 내부에 이미지가 파일로 저장되도록 다운로드 스크립트 결합 */
         async function dbHarvestPlot() {
             const resultInput = document.getElementById('input-result').value.trim();
             if (!resultInput) return alert('실제 무엇이 열렸는지 작성해 주세요!');
@@ -559,7 +597,6 @@
             const keyword = container.querySelector('.signpost').innerText;
             const dbTime = container.getAttribute('data-time');
             
-            // [추가] 디바이스 다운로드 연동 처리
             const attachedImg = container.querySelector('.planted-image');
             if (attachedImg && attachedImg.src) {
                 try {
