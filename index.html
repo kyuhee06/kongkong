@@ -607,7 +607,7 @@
                 }
             }
             
-            const logText = `🫛 ${keyword} 심은 데 ${resultInput} 났다!`;
+            const logText = `🫘 ${keyword} 심은 데 ${resultInput} 났다!`;
             historyData.unshift(logText);
             renderHistoryUI();
             
@@ -631,7 +631,7 @@
                 const li = document.createElement('li');
                 li.innerText = text;
 
-                const cleanText = text.replace('🫛 ', '').replace('✨ ', '');
+                const cleanText = text.replace('🫘 ', '').replace('✨ ', '');
                 const parts = cleanText.split(' 심은 데 ');
                 
                 if (parts.length === 2) {
