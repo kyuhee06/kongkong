@@ -38,6 +38,23 @@
         }
         #island:active { cursor: grabbing; }
 
+        /* [추가] 디자인 수정사항 1, 2번을 위한 내부 레이어 스타일 */
+        .deco-grass {
+            position: absolute;
+            width: auto;
+            height: auto;
+            pointer-events: none;
+            z-index: 0; /* 배경보단 위, 밭(z-index: 2)보단 아래 */
+        }
+
+        .deco-animal {
+            position: absolute;
+            font-family: sans-serif !important; /* 이모지가 깨지지 않도록 기본 폰트 적용 */
+            line-height: 1;
+            pointer-events: none;
+            z-index: 0; /* 배경보단 위, 밭(z-index: 2)보단 아래 */
+        }
+
         #ui-header {
             position: fixed; top: 20px; left: 20px;
             color: white; font-size: 26px; font-weight: bold;
@@ -155,7 +172,7 @@
             font-weight: normal;         
             font-size: 18px;
             line-height: 25px;           
-            margin: 0;                   
+            margin: 0;                    
             word-break: keep-all;        
         }
 
@@ -263,7 +280,7 @@
             font-weight: normal;         
             font-size: 14px;
             margin-top: 30px;      
-            width: 260px;               
+            width: 260px;              
             box-sizing: border-box;
             transition: background-color 0.2s;
         }
@@ -687,7 +704,95 @@
             el.appendChild(sign);
         }
 
+        /* [추가] 디자인 수정사항 1번, 2번을 랜덤으로 생성하여 배경에 뿌려주는 함수 */
+        function generateRandomDecorations() {
+            // 초록색 영역 경계값 정의 (island 전체 4500px - border 80px = 4340px)
+            const minBound = 80;
+            const maxBound = 4500 - 80;
+            
+            // 1. 풀숲.png 배치 (상하좌우 패딩 최소 150px 반영)
+            const grassPadding = 150;
+            const grassMin = minBound + grassPadding;
+            const grassMax = maxBound - grassPadding;
+            
+            // 배치할 풀숲의 개수 무작위 설정 (예: 15개~25개 분포로 배치하여 규칙성을 완전히 파괴)
+            const grassCount = Math.floor(Math.random() * 11) + 15; 
+            for (let i = 0; i < grassCount; i++) {
+                const grassImg = document.createElement('img');
+                grassImg.src = '풀숲.png';
+                grassImg.className = 'deco-grass';
+                
+                const randomX = Math.floor(Math.random() * (grassMax - grassMin + 1)) + grassMin;
+                const randomY = Math.floor(Math.random() * (grassMax - grassMin + 1)) + grassMin;
+                
+                grassImg.style.left = randomX + 'px';
+                grassImg.style.top = randomY + 'px';
+                island.appendChild(grassImg);
+            }
+
+            // 2. 동물 이모지 배치 목록 및 속성 정의
+            const animalTemplates = [
+                { char: '🐏', size: 35 }, { char: '🐑', size: 35 }, { char: '🐐', size: 35 },
+                { char: '🐂', size: 50 }, { char: '🐃', size: 50 }, { char: '🐄', size: 50 },
+                { char: '🪿', size: 27 }, { char: '🦆', size: 27 }, { char: '🐓', size: 27 }
+            ];
+
+            // 이번 새로고침에 등장할 이모지 총 개수 무작위 지정 (최소 1개, 최대 7개)
+            const totalAnimals = Math.floor(Math.random() * 7) + 1;
+            const placedAnimals = []; // 이모지 간 20px 패딩 충돌 검사용 배열
+
+            for (let i = 0; i < totalAnimals; i++) {
+                // 사용할 이모지 무작위 선택
+                const template = animalTemplates[Math.floor(Math.random() * animalTemplates.length)];
+                
+                const animalSpan = document.createElement('span');
+                animalSpan.className = 'deco-animal';
+                animalSpan.innerText = template.char;
+                animalSpan.style.fontSize = template.size + 'px';
+
+                // 이모지 충돌 최소화 및 초록색 영역 안으로 배치하기 위한 좌표 연산 (기본 border 80px 고려)
+                const animalMin = minBound + 20;
+                const animalMax = maxBound - template.size - 20;
+                
+                let validPosition = false;
+                let randomX = 0, randomY = 0;
+                let attempts = 0;
+
+                // 이미 배치된 동물 이모지들과 상하좌우 최소 20px 이상 떨어져 있는지 검사 (최대 100번 시도)
+                while (!validPosition && attempts < 100) {
+                    randomX = Math.floor(Math.random() * (animalMax - animalMin + 1)) + animalMin;
+                    randomY = Math.floor(Math.random() * (animalMax - animalMin + 1)) + animalMin;
+                    
+                    let isOverlap = false;
+                    for (let j = 0; j < placedAnimals.length; j++) {
+                        const other = placedAnimals[j];
+                        // 상하좌우 패딩 20px 조건 검사
+                        const xDist = Math.abs(randomX - other.x);
+                        const yDist = Math.abs(randomY - other.y);
+                        const minDistance = Math.max(template.size, other.size) + 20;
+
+                        if (xDist < minDistance && yDist < minDistance) {
+                            isOverlap = true;
+                            break;
+                        }
+                    }
+                    if (!isOverlap) validPosition = true;
+                    attempts++;
+                }
+
+                animalSpan.style.left = randomX + 'px';
+                animalSpan.style.top = randomY + 'px';
+                island.appendChild(animalSpan);
+                
+                // 배치 기록 저장
+                placedAnimals.push({ x: randomX, y: randomY, size: template.size });
+            }
+        }
+
         async function init() {
+            // [추가] 초기 실행 시 랜덤 디자인 요소를 먼저 생성하여 배경 레이어 구축
+            generateRandomDecorations();
+
             try {
                 if(!dbClient) return;
                 const { data: plots } = await dbClient.from('plots').select('*');
