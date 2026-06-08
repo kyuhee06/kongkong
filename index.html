@@ -807,8 +807,8 @@
                 
                 placedAnimals.push({ x: randomX, y: randomY, size: template.size });
 
-                // 속도 속성 설정: 초속 10px ~ 30px 사이 무작위 추출
-                const speed = Math.random() * (30 - 10) + 10;
+                // 속도 속성 설정: 초속 5px ~ 20px 사이 무작위 추출
+                const speed = Math.random() * (20 - 5) + 5;
                 // 방향 속성 설정: 아예 랜덤한 각도(0 ~ 2*PI) 추출 후 낱개 벡터(dx, dy)로 파싱
                 const angle = Math.random() * Math.PI * 2;
                 
